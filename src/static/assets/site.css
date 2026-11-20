@@ -1903,3 +1903,9 @@ html { font-size: min(max(calc(100vw / 1440), min(calc(100vw / 1200), 0.8333px))
 .article__body blockquote { margin: 0; padding: 10rem 18rem; border-radius: 16rem; background: rgba(255,255,255,.7); border-left: 4rem solid var(--sky); }
 .article__body hr { border: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--pink), transparent); }
 .mvlist .empty, .nlist .empty { grid-column: 1 / -1; padding: 30rem; text-align: center; color: var(--ink-2); }
+
+/* SCHEDULE：予定がないときの文は横いっぱいに */
+.events li.--empty { display: block; padding: 22rem 26rem; text-align: center; font-weight: 700; color: var(--ink-2); }
+/* カレンダーの文字は1行に（長いときは端を「…」に） */
+.cal__grid .d em { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-inline: 3rem; }
+@media (max-width: 768px) { .cal__grid .d em { font-size: 7rem; padding-inline: 1rem; } }

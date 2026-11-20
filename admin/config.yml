@@ -67,6 +67,34 @@ collections:
       - { name: body, label: 本文, widget: markdown, hint: "見出しは「### 」、リンクは [文字](maids.html) のように書けます" }
       - { name: draft, label: 下書き, widget: boolean, default: false, required: false, hint: オンにすると、サイトには表示されません }
 
+  # ------------------------------------------------------------ スケジュール
+  - name: schedule
+    label: スケジュール
+    label_singular: 予定
+    description: 通常営業（第2・第4水曜 22:00〜23:15）はカレンダーに自動で入ります。ここでは「特別営業・イベント」の日を増やしたり、営業日を「お休み」にしたりできます。予定をやめるときは、その予定を削除してください。
+    folder: content/schedule
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "s{{year}}{{month}}{{day}}{{hour}}{{minute}}{{second}}"
+    identifier_field: label
+    summary: "{{date}}｜{{label}}"
+    sortable_fields: [date, label]
+    fields:
+      - { name: date, label: 日付, widget: datetime, time_format: false, format: "YYYY-MM-DD" }
+      - name: type
+        label: 種類
+        widget: select
+        default: special
+        options:
+          - { label: 特別営業・イベント（この日を営業日にする）, value: special }
+          - { label: お休み（この日は営業しない）, value: off }
+      - { name: label, label: カレンダーに出る文字, widget: string, default: 特別営業, hint: "短めに（6文字くらいまで）。例：特別営業／ハロウィン／お休み" }
+      - { name: start, label: 開始時刻, widget: string, required: false, default: "22:00", hint: 特別営業のときに使います（例 21:00）, pattern: ["^$|^([01]?[0-9]|2[0-9])[:：][0-5][0-9]$", "「21:00」のように半角で入れてください"] }
+      - { name: end, label: 終了時刻, widget: string, required: false, default: "23:15", hint: "日付をまたぐときは 24:30 のように書けます", pattern: ["^$|^([01]?[0-9]|2[0-9])[:：][0-5][0-9]$", "「23:15」のように半角で入れてください"] }
+      - { name: note, label: 説明, widget: text, required: false, hint: SCHEDULEページの「EVENTS」に表示されます（例 ハロウィン特別営業！仮装してご帰宅ください♡） }
+
   # ------------------------------------------------------------ キャスト
   - name: cast
     label: キャスト

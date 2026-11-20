@@ -150,6 +150,29 @@ def build_news():
     out.sort(key=lambda n: (n["date"], n["id"]), reverse=True)
     return out
 
+# ---------------------------------------------------------------- スケジュール（特別営業・お休み）
+def hm_min(v):
+    m = re.fullmatch(r"\s*(\d{1,2})\s*[:：時]\s*(\d{1,2})?\s*分?\s*", str(v or ""))
+    if not m: return None
+    h, mi = int(m.group(1)), int(m.group(2) or 0)
+    return h * 60 + mi if h < 30 and mi < 60 else None
+
+def build_schedule():
+    out = {}
+    for sid, d in load("schedule"):
+        dt = str(d.get("date") or "")[:10]
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", dt): warn(f"スケジュール「{d.get('label')}」の日付がありません"); continue
+        k = "off" if d.get("type") == "off" else "sp"
+        item = {"k": k, "t": str(d.get("label") or "").strip() or ("お休み" if k == "off" else "特別営業"), "d": str(d.get("note") or "").strip()}
+        if k == "sp":
+            st, en = hm_min(d.get("start") or "22:00"), hm_min(d.get("end") or "23:15")
+            if st is None or en is None: warn(f"{dt} の時刻が読めないため 22:00〜23:15 にしました"); st, en = 22 * 60, 23 * 60 + 15
+            if en <= st: en += 24 * 60   # 日をまたぐとき
+            item.update(s=st, e=en)
+        if dt in out: warn(f"{dt} に予定が2つあります（あとのものを使います）")
+        out[dt] = item
+    return dict(sorted(out.items()))
+
 # ---------------------------------------------------------------- 動画（YouTube）
 def yt_id(url):
     m = re.search(r"(?:youtu\.be/|v=|/shorts/|/embed/|/live/)([A-Za-z0-9_-]{11})", url or "")
@@ -460,6 +483,7 @@ def build_page(name, D):
 {outside}
 <script src="assets/cast.js"></script>
 <script src="assets/news.js"></script>
+<script src="assets/schedule.js"></script>
 <script src="assets/site.js"></script>
 </body>
 </html>
@@ -471,6 +495,7 @@ def build_page(name, D):
 def write_js(D):
     cast = [{"id": c["id"], "n": c["name"], "c": c["c"], "c2": c["c2"], "g": (c.get("p") or {}).get("gen", 0), "t": (c.get("p") or {}).get("catch", ""), "r": (c.get("p") or {}).get("roles", [])} for c in D["cast"]]
     open(os.path.join(OUT, "assets", "cast.js"), "w", encoding="utf-8").write("/* おみくじ・チンチロ・大行進などで使うメイド一覧（build.py が自動生成） */\nwindow.MD_CAST = " + json.dumps(cast, ensure_ascii=False) + ";\n")
+    open(os.path.join(OUT, "assets", "schedule.js"), "w", encoding="utf-8").write("/* スケジュール：特別営業(sp)・お休み(off)。s/e は開始・終了（0時からの分）（build.py が content/schedule から自動生成） */\nwindow.MD_SCHEDULE = " + json.dumps(D["schedule"], ensure_ascii=False).replace("</", "<\\/") + ";\n")
     open(os.path.join(OUT, "assets", "news.js"), "w", encoding="utf-8").write("/* お知らせ（build.py が content/news から自動生成。新しい順） */\nwindow.MD_NEWS = " + json.dumps(D["news"], ensure_ascii=False).replace("</", "<\\/") + ";\n")
 
 def write_extras():
@@ -490,10 +515,10 @@ def write_extras():
 if __name__ == "__main__":
     if os.path.isdir(OUT): shutil.rmtree(OUT)
     shutil.copytree(STATIC, OUT)
-    D = {"cast": build_cast(), "news": build_news(), "photos": build_photos()}
+    D = {"cast": build_cast(), "news": build_news(), "photos": build_photos(), "schedule": build_schedule()}
     D["movies"] = build_movies(D["cast"])
     write_js(D)
     for n in PAGES:
         if os.path.exists(os.path.join(SRC, n + ".html")): build_page(n, D)
     write_extras()
-    print(f"OK  メイド {len(D['cast'])}名 / お知らせ {len(D['news'])}件 / 動画 {len(D['movies'])}本 / 写真 {len(D['photos'])}枚" + (f" / 注意 {len(WARN)}件" if WARN else ""))
+    print(f"OK  メイド {len(D['cast'])}名 / お知らせ {len(D['news'])}件 / 動画 {len(D['movies'])}本 / 写真 {len(D['photos'])}枚 / 特別営業・お休み {len(D['schedule'])}件" + (f" / 注意 {len(WARN)}件" if WARN else ""))

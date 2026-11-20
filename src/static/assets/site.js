@@ -206,19 +206,24 @@ document.documentElement.classList.add("js");
     (function loop() { cx += (tx - cx) * .2; cy += (ty - cy) * .2; curEl.style.transform = "translate(" + cx + "px," + cy + "px)"; requestAnimationFrame(loop); })();
   }
 
-  /* ---------- 営業日：第2・第4水曜日 22:00–23:15 JST（＋特別営業・お休み） ---------- */
-  var SPECIAL = {
-  };
-  var JST = 9 * 3600e3, DUR = 75 * 60e3, WD = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  /* ---------- 営業日：第2・第4水曜日 22:00–23:15 JST ＋ 管理画面の「スケジュール」（特別営業・お休み） ----------
+     MD_SCHEDULE（assets/schedule.js）: { "2026-12-24": { k: "sp"=特別営業 / "off"=お休み, t: カレンダーの文字, d: 説明, s/e: 開始・終了（0時からの分） } } */
+  var SPECIAL = window.MD_SCHEDULE || {};
+  var JST = 9 * 3600e3, WD = ["SUN","MON","TUE","WED","THU","FRI","SAT"], REG = { s: 22 * 60, e: 23 * 60 + 15 };
   var dkey = function (y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); };
   function isRegular(y, m, d) { var n = Math.ceil(d / 7); return new Date(Date.UTC(y, m, d)).getUTCDay() === 3 && (n === 2 || n === 4); }
   function isOpen(y, m, d) { var sp = SPECIAL[dkey(y, m, d)]; return sp ? sp.k !== "off" : isRegular(y, m, d); }
+  function hours(y, m, d) { var sp = SPECIAL[dkey(y, m, d)]; return sp && sp.k !== "off" && sp.s != null ? { s: sp.s, e: sp.e } : REG; }
+  var hm = function (min) { min = ((min % 1440) + 1440) % 1440; return pad(Math.floor(min / 60)) + ":" + pad(min % 60); };
+  var hoursAt = function (t) { var j = new Date(t + JST); return hours(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate()); };
+  var timeLabel = function (t, sep) { var h = hoursAt(t); return hm(h.s) + (sep || "–") + hm(h.e); };
   function openList(now, count) {
     var j = new Date(now + JST), out = [];
-    for (var k = 0; k < 800 && out.length < count; k++) {
+    for (var k = -1; k < 800 && out.length < count; k++) {
       var dt = new Date(Date.UTC(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate() + k)), y = dt.getUTCFullYear(), m = dt.getUTCMonth(), d = dt.getUTCDate();
       if (!isOpen(y, m, d)) continue;
-      var t = Date.UTC(y, m, d, 22, 0) - JST; if (t + DUR > now) out.push(t);
+      var h = hours(y, m, d), t = Date.UTC(y, m, d, 0, h.s) - JST;
+      if (Date.UTC(y, m, d, 0, h.e) - JST > now) out.push(t);
     }
     return out;
   }
@@ -232,6 +237,8 @@ document.documentElement.classList.add("js");
     var list = openList(now, 4), t = list[0], j = new Date(t + JST), diff = Math.max(0, t - now), s = Math.floor(diff / 1000), m = md(t);
     if (m !== lastMd) {
       lastMd = m; $("t-date").innerHTML = m + "<small>" + WD[j.getUTCDay()] + "</small>";
+      var tt0 = document.querySelector(".ticket__time"); if (tt0) tt0.textContent = timeLabel(t, " — ") + " JST";
+      var st0 = $("t-note") && $("t-note").querySelector("strong"); if (st0 && diff > 0) st0.textContent = hm(hoursAt(t).s);
       var ul = $("upcoming");
       if (ul) { ul.innerHTML = ""; list.forEach(function (tt, k) { var li = document.createElement("li"); li.innerHTML = md(tt) + "<small>" + (k === 0 ? "NEXT" : WD[new Date(tt + JST).getUTCDay()]) + "</small>"; ul.appendChild(li); }); }
     }
@@ -254,16 +261,18 @@ document.documentElement.classList.add("js");
         if (sp) { cls += " --" + sp.k; lab = sp.t; } else if (isRegular(Y, M, d)) { cls += " --open"; lab = "OPEN"; }
         if (key < todayKey) cls += " --past";
         if (key === todayKey) cls += " --today";
-        g += '<span class="' + cls + '"' + (sp ? ' title="' + esc(sp.d) + '"' : "") + ">" + d + (lab ? "<em>" + esc(lab) + "</em>" : "") + "</span>";
+        g += '<span class="' + cls + '"' + (sp ? ' title="' + esc(sp.d || (sp.k === "off" ? "お休み" : hm(sp.s) + "–" + hm(sp.e))) + '"' : "") + ">" + d + (lab ? "<em>" + esc(lab) + "</em>" : "") + "</span>";
       }
       html += '<div class="cal glass rv"><div class="cal__head"><b class="grad-text">' + Y + "." + pad(M + 1) + '</b><span class="mono">' + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][M] + '</span></div><div class="cal__grid">' + g + "</div></div>";
     }
     calBox.innerHTML = html;
     var ev = $("events");
     if (ev) ev.innerHTML = Object.keys(SPECIAL).filter(function (k) { return k >= todayKey; }).sort().map(function (k) {
-      var sp = SPECIAL[k], dt = new Date(k + "T00:00:00Z");
-      return '<li class="glass rv"><time>' + k.slice(5).replace("-", ".") + " " + WD[dt.getUTCDay()] + '</time><span class="tag' + (sp.k === "off" ? " --off" : "") + '">' + esc(sp.t) + "</span><p>" + esc(sp.d) + "</p></li>";
-    }).join("") || '<li class="glass">予定されている特別営業はありません。</li>';
+      var sp = SPECIAL[k], dt = new Date(k + "T00:00:00Z"), off = sp.k === "off";
+      var desc = sp.d || (off ? "この日はお休みです" : "特別営業です");
+      return '<li class="glass rv"><time>' + k.slice(5).replace("-", ".") + " " + WD[dt.getUTCDay()] + '</time><span class="tag' + (off ? " --off" : "") + '">' + esc(sp.t) + "</span><p>" + esc(desc) +
+        (off ? "" : "<small>" + hm(sp.s) + "–" + hm(sp.e) + " JST</small>") + "</p></li>";
+    }).join("") || '<li class="glass --empty">予定されている特別営業・お休みはありません。</li>';
   }
 
   /* ---------- タブで絞り込み（MENU・FAQ） ---------- */
@@ -599,7 +608,7 @@ document.documentElement.classList.add("js");
         case "help": tPrint(CMDS.map(function (c) { return '<b>' + c[0] + "</b>" + c[1]; }).join("<br>"), "--list"); break;
         case "next":
           var L = openList(Date.now(), 3);
-          tPrint(L.map(function (t, k) { var j = new Date(t + JST); return (k ? "　　　　 " : "NEXT OPEN ") + md(t) + " (" + WD[j.getUTCDay()] + ") 22:00–23:15 JST"; }).join("<br>"), "--ok"); break;
+          tPrint(L.map(function (t, k) { var j = new Date(t + JST); return (k ? "　　　　 " : "NEXT OPEN ") + md(t) + " (" + WD[j.getUTCDay()] + ") " + timeLabel(t) + " JST"; }).join("<br>"), "--ok"); break;
         case "maids":
           var gens = {}; CAST.forEach(function (c) { gens[c.g] = (gens[c.g] || 0) + 1; });
           tPrint("在籍メイド：<b>" + CAST.length + "名</b><br>" + Object.keys(gens).sort(function (a, b) { return a - b; }).map(function (g) { return (+g ? g + "期生" : "その他") + " " + gens[g] + "名"; }).join(" / ") + '<br><a href="maids.html">→ MAIDS ページへ</a>', "--ok"); break;
@@ -913,7 +922,7 @@ document.documentElement.classList.add("js");
 
     /* ---------- 5. 開店モード（第2・第4水曜 22:00〜23:15 だけ） ---------- */
     var titleBackup = null, openBadge = null;
-    function nowOpen() { var j = new Date(Date.now() + JST), mins = j.getUTCHours() * 60 + j.getUTCMinutes(); return isOpen(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate()) && mins >= 22 * 60 && mins < 23 * 60 + 15; }
+    function nowOpen() { var n = Date.now(), l = openList(n, 1); return l.length > 0 && l[0] <= n; }
     function checkOpen() {
       var on = nowOpen() || openPreview;
       if (on === root.classList.contains("is-open-now")) return;
