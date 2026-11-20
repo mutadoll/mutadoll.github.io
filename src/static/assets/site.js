@@ -407,7 +407,10 @@ document.documentElement.classList.add("js");
       var big = new Image(); big.onload = function () { if (cmWant === d.id) cmImg.src = big.src; }; big.src = "img/cast/" + d.id + ".webp";
       $("cm-name").textContent = d.name; $("cm-no").textContent = "No." + d.no;
       $("cm-catch").textContent = p ? p.catch : "";
-      $("cm-tags").innerHTML = p ? p.roles.map(function (r) { return '<span class="' + (/店長|メイド長/.test(r) ? "--lead" : "") + '">' + esc(r) + "</span>"; }).join("") + '<span class="--gen g' + p.gen + '">' + p.gen + "期生</span>" : '<span class="--gen g0">プロフィール準備中</span>';
+      // 役職（店長・メイド長）→ メイドの種類（期生ごと）→ 担当（シンガーなど）→ 期生
+      var lead = p ? p.roles.filter(function (r) { return /店長|メイド長/.test(r); }) : [], rest = p ? p.roles.filter(function (r) { return !/店長|メイド長/.test(r); }) : [];
+      $("cm-tags").innerHTML = p ? lead.map(function (r) { return '<span class="--lead">' + esc(r) + "</span>"; }).join("") + (p.type ? '<span class="--type">' + esc(p.type) + "</span>" : "") +
+        rest.map(function (r) { return "<span>" + esc(r) + "</span>"; }).join("") + '<span class="--gen g' + p.gen + '">' + p.gen + "期生</span>" : '<span class="--gen g0">プロフィール準備中</span>';
       $("cm-spec").innerHTML = p ? row("誕生日", p.bday) + row("出身地", p.from) + row("血液型", p.blood) + row("好きなモノ", p.likes) + row("特技", p.skill) : "";
       $("cm-spec").hidden = !p; $("cm-empty").hidden = !!p;
       $("cm-pos").textContent = pad(cmIdx + 1) + " / " + pad(list.length);
@@ -658,7 +661,7 @@ document.documentElement.classList.add("js");
           tPrint(L.map(function (t, k) { var j = new Date(t + JST); return (k ? "　　　　 " : "NEXT OPEN ") + md(t) + " (" + WD[j.getUTCDay()] + ") " + timeLabel(t) + " JST"; }).join("<br>"), "--ok"); break;
         case "maids":
           var gens = {}; CAST.forEach(function (c) { gens[c.g] = (gens[c.g] || 0) + 1; });
-          tPrint("在籍メイド：<b>" + CAST.length + "名</b><br>" + Object.keys(gens).sort(function (a, b) { return a - b; }).map(function (g) { return (+g ? g + "期生" : "その他") + " " + gens[g] + "名"; }).join(" / ") + '<br><a href="maids.html">→ MAIDS ページへ</a>', "--ok"); break;
+          tPrint("在籍メイド：<b>" + CAST.length + "名</b><br>" + Object.keys(gens).sort(function (a, b) { return a - b; }).map(function (g) { return (+g ? g + "期生" + ((window.MD_TYPES || {})[g] ? "（" + window.MD_TYPES[g] + "）" : "") : "その他") + " " + gens[g] + "名"; }).join("<br>") + '<br><a href="maids.html">→ MAIDS ページへ</a>', "--ok"); break;
         case "hearts":
           var rest = SPOTS.filter(function (p) { return got.indexOf(p.id) < 0; }).map(function (p) { return p.label; });
           tPrint("隠れハート：<b>" + got.length + " / " + SPOTS.length + "</b>" + (rest.length ? "<br>まだのページ：" + rest.join(", ") : "<br>COMPLETE ♡ あなたはVIPです"), "--ok"); break;

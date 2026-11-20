@@ -99,7 +99,7 @@ collections:
   - name: cast
     label: キャスト
     label_singular: キャスト
-    description: MAIDSページ・トップ・おみくじなどに使われます。期生 → 役職 → 並び順 の順に並びます。
+    description: MAIDSページ・トップ・おみくじなどに使われます。期生 → 役職（店長・メイド長・副メイド長）→ 並び順 の順に並びます。メイドの種類は「設定」で期生ごとに決めます。
     folder: content/cast
     format: json
     extension: json
@@ -117,13 +117,14 @@ collections:
       - { name: name, label: 名前, widget: string }
       - { name: show, label: サイトに表示する, widget: boolean, default: true, hint: 卒業・お休みのときにオフにすると、データを残したまま非表示にできます }
       - { name: image, label: 立ち絵, widget: image, hint: "背景を透過したPNG（縦長 2:3、例 1023×1537）がおすすめ。サイズは自動で調整されます" }
-      - { name: gen, label: 期生, widget: number, value_type: int, min: 0, default: 1, hint: "0 にすると「プロフィール準備中」になります" }
+      - { name: gen, label: 期生, widget: number, value_type: int, min: 0, default: 1, hint: "メイドの種類（1期生＝レジェンドメイド など）は期生から自動で決まります。0 にすると「プロフィール準備中」" }
       - name: roles
         label: 役職・担当
         widget: select
         multiple: true
         required: false
-        options: [店長, メイド長, 副メイド長, プレミアムメイド, メイド, 新人メイド, シンガー, サブシンガー, ダンサー]
+        hint: メイドの種類は期生から自動で決まるので、ここでは役職と担当だけを選びます
+        options: [店長, メイド長, 副メイド長, シンガー, サブシンガー, ダンサー]
       - { name: card, label: ローマ字表記, widget: string, required: false, hint: プロフィールカードに入る名前（空なら名前をそのまま使います） }
       - { name: catch, label: キャッチコピー, widget: string, required: false }
       - { name: bday, label: 誕生日, widget: string, required: false, hint: 例 2月4日 }
@@ -196,3 +197,22 @@ collections:
           - { label: 上（頭を優先）, value: top }
           - { label: 中央, value: center }
           - { label: 下, value: bottom }
+
+  # ------------------------------------------------------------ 設定
+  - name: settings
+    label: 設定
+    files:
+      - name: maid_types
+        label: メイドの種類（期生ごと）
+        file: content/settings/maid_types.json
+        format: json
+        fields:
+          - name: types
+            label: 期生ごとの種類
+            hint: プロフィールに表示される、期生ごとのメイドの種類です。新しい期生ができたら追加してください
+            label_singular: 期生
+            widget: list
+            summary: "{{gen}}期生：{{name}}"
+            fields:
+              - { name: gen, label: 期生, widget: number, value_type: int, min: 1 }
+              - { name: name, label: 種類の名前, widget: string, hint: 例 レジェンドメイド }

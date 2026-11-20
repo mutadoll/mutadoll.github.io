@@ -1192,6 +1192,7 @@ html:not(.is-ready) .hero__slides, html:not(.is-ready) .hero__scanline:not(.is-r
 .cm-tags span { padding: 2rem 12rem; border-radius: 999px; background: #ffd6ea; color: #c4417d; font-weight: 800; font-size: 12rem; }
 .cm-tags span.--lead { background: #ffe58a; color: #8a6200; }
 .cm-tags span.--gen { background: var(--gc); color: #fff; }
+.cm-tags span.--type { background: var(--grad); color: #fff; box-shadow: 0 4rem 10rem -6rem rgba(214,166,242,.9); }
 .cmodal__info .cm-spec { margin-top: 18rem; }
 .cmodal__info .cm-spec div { grid-template-columns: 96rem minmax(0, 1fr); padding: 10rem 0; }
 .cmodal__info .cm-spec dt { font-family: var(--f-jp); font-weight: 800; font-size: 12rem; letter-spacing: .08em; color: var(--pink-d); }

@@ -108,8 +108,16 @@ def auto_colors(src_path):
     return hx(.86, s2), hx(.66, min(.85, s2 + .1))
 
 # ---------------------------------------------------------------- キャスト
-RANK = ["店長", "メイド長", "副メイド長", "プレミアムメイド", "メイド", "新人メイド"]
+RANK = ["店長", "メイド長", "副メイド長"]                 # 同じ期生のなかで前に並ぶ役職
+OLD_TYPES = {"プレミアムメイド", "メイド", "新人メイド"}     # 以前の種類（期生ごとの種類に置きかえ）
+def maid_types():
+    """content/settings/maid_types.json：期生ごとのメイドの種類（管理画面の「設定」で編集）"""
+    try: rows = json.load(open(os.path.join(CONTENT, "settings", "maid_types.json"), encoding="utf-8")).get("types") or []
+    except Exception as e: warn(f"メイドの種類の設定を読めませんでした（{e}）"); rows = []
+    return {int(num(r.get("gen"), 0)): str(r.get("name") or "").strip() for r in rows if r.get("name")}
+TYPES = {}
 def build_cast():
+    TYPES.update(maid_types())
     rows = []
     for cid, d in load("cast"):
         if d.get("show") is False or not str(d.get("name", "")).strip(): continue
@@ -120,11 +128,11 @@ def build_cast():
         c, c2 = d.get("color") or "", d.get("color2") or ""
         if not (re.fullmatch(r"#[0-9a-fA-F]{6}", c) and re.fullmatch(r"#[0-9a-fA-F]{6}", c2)):
             ac, ac2 = auto_colors(src); c = c if re.fullmatch(r"#[0-9a-fA-F]{6}", c) else ac; c2 = c2 if re.fullmatch(r"#[0-9a-fA-F]{6}", c2) else ac2
-        gen = int(num(d.get("gen"), 0)); roles = [r for r in (d.get("roles") or []) if r]
+        gen = int(num(d.get("gen"), 0)); roles = [r for r in (d.get("roles") or []) if r and r not in OLD_TYPES]
         p = None
         if gen > 0:
             p = {k: str(d.get(k) or "") for k in ("card", "catch", "bday", "from", "blood", "likes", "skill")}
-            p.update(gen=gen, roles=roles)
+            p.update(gen=gen, roles=roles, type=TYPES.get(gen) or "メイド")
             if not p["card"]: p["card"] = d["name"]
         rank = min([RANK.index(r) for r in roles if r in RANK] or [len(RANK)])
         rows.append(((gen or 99), rank, num(d.get("order"), 9999), d["name"], {"id": cid, "name": d["name"].strip(), "c": c.lower(), "c2": c2.lower(), "p": p}))
@@ -493,8 +501,8 @@ def build_page(name, D):
     open(os.path.join(OUT, name + ".html"), "w", encoding="utf-8").write(out)
 
 def write_js(D):
-    cast = [{"id": c["id"], "n": c["name"], "c": c["c"], "c2": c["c2"], "g": (c.get("p") or {}).get("gen", 0), "t": (c.get("p") or {}).get("catch", ""), "r": (c.get("p") or {}).get("roles", [])} for c in D["cast"]]
-    open(os.path.join(OUT, "assets", "cast.js"), "w", encoding="utf-8").write("/* おみくじ・チンチロ・大行進などで使うメイド一覧（build.py が自動生成） */\nwindow.MD_CAST = " + json.dumps(cast, ensure_ascii=False) + ";\n")
+    cast = [{"id": c["id"], "n": c["name"], "c": c["c"], "c2": c["c2"], "g": (c.get("p") or {}).get("gen", 0), "t": (c.get("p") or {}).get("catch", ""), "r": (c.get("p") or {}).get("roles", []), "y": (c.get("p") or {}).get("type", "")} for c in D["cast"]]
+    open(os.path.join(OUT, "assets", "cast.js"), "w", encoding="utf-8").write("/* おみくじ・チンチロ・大行進などで使うメイド一覧（build.py が自動生成） */\nwindow.MD_CAST = " + json.dumps(cast, ensure_ascii=False) + ";\nwindow.MD_TYPES = " + json.dumps({str(k): v for k, v in sorted(TYPES.items())}, ensure_ascii=False) + ";\n")
     open(os.path.join(OUT, "assets", "schedule.js"), "w", encoding="utf-8").write("/* スケジュール：特別営業(sp)・お休み(off)。s/e は開始・終了（0時からの分）（build.py が content/schedule から自動生成） */\nwindow.MD_SCHEDULE = " + json.dumps(D["schedule"], ensure_ascii=False).replace("</", "<\\/") + ";\n")
     open(os.path.join(OUT, "assets", "news.js"), "w", encoding="utf-8").write("/* お知らせ（build.py が content/news から自動生成。新しい順） */\nwindow.MD_NEWS = " + json.dumps(D["news"], ensure_ascii=False).replace("</", "<\\/") + ";\n")
 
