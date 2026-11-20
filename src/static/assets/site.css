@@ -1909,3 +1909,14 @@ html { font-size: min(max(calc(100vw / 1440), min(calc(100vw / 1200), 0.8333px))
 /* カレンダーの文字は1行に（長いときは端を「…」に） */
 .cal__grid .d em { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-inline: 3rem; }
 @media (max-width: 768px) { .cal__grid .d em { font-size: 7rem; padding-inline: 1rem; } }
+
+/* MEDIA：写真のページ切り替え（光のラインが走る・ページ番号がぽんっ） */
+.media-grid { position: relative; }
+.media-grid.is-paging { pointer-events: none; }
+.media-grid.is-paging::after { content: ""; position: absolute; z-index: 3; left: -3%; right: -3%; top: 0; height: 3px; border-radius: 3px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, #ff8fc0 18%, #d6a6f2 50%, #7ccbff 82%, transparent); box-shadow: 0 0 14rem 3rem rgba(255,143,192,.45), 0 0 30rem 6rem rgba(124,203,255,.25);
+  animation: pageScan .8s cubic-bezier(.45,0,.2,1) both; }
+@keyframes pageScan { 0% { top: 0; opacity: 0; } 12% { opacity: 1; } 85% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+#photo .pager button[aria-current="page"] { animation: pagePop .5s cubic-bezier(.3,1.8,.5,1); }
+@keyframes pagePop { 0% { scale: .6; } 60% { scale: 1.15; } 100% { scale: 1; } }
+@media (prefers-reduced-motion: reduce) { .media-grid.is-paging::after, #photo .pager button[aria-current="page"] { animation: none; } }

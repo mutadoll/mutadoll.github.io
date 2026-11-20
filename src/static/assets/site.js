@@ -299,7 +299,44 @@ document.documentElement.classList.add("js");
       nav.innerHTML = h;
       if (scroll) scrollTo({ top: list.getBoundingClientRect().top + scrollY - 150, behavior: reduce ? "auto" : "smooth" });
     };
-    nav.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; pg = +b.dataset.p; draw(true); });
+    // ページ切り替えのアニメーション：今の写真が流れて消え → 新しい写真が反対側から順番に入る（＋光のライン）
+    var busy = false;
+    var shown = function () { return items.filter(function (it) { return !it.hidden; }); };
+    var go = function (np) {
+      np = Math.max(1, Math.min(pages, np));
+      if (np === pg || busy) return;
+      var dir = np > pg ? 1 : -1;
+      if (reduce || !list.animate) { pg = np; draw(true); return; }
+      busy = true;
+      scrollTo({ top: list.getBoundingClientRect().top + scrollY - 150, behavior: "smooth" });
+      list.classList.remove("is-paging"); void list.offsetWidth; list.classList.add("is-paging");
+      var old = shown(), h0 = list.offsetHeight, outMs = 240 + old.length * 22;
+      old.forEach(function (it, k) {
+        it.animate([{ opacity: 1, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "translateX(" + (-dir * 46) + "rem) scale(.92) rotate(" + (-dir * 2) + "deg)", filter: "blur(5px)" }],
+          { duration: 240, delay: k * 22, easing: "cubic-bezier(.55,0,.8,.2)", fill: "forwards" });
+      });
+      setTimeout(function () {
+        old.forEach(function (it) { it.getAnimations().forEach(function (a) { a.cancel(); }); });
+        pg = np; draw(false);
+        var now = shown(), h1 = list.offsetHeight;
+        if (h1 !== h0) list.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" });
+        now.forEach(function (it, k) {
+          it.animate([{ opacity: 0, transform: "translate(" + (dir * 70) + "rem, 16rem) scale(.88) rotate(" + (dir * 3) + "deg)", filter: "blur(6px)" },
+                      { opacity: 1, offset: .6, filter: "blur(0)" },
+                      { opacity: 1, transform: "none", filter: "blur(0)" }],
+            { duration: 560, delay: k * 55, easing: "cubic-bezier(.2,1.25,.35,1)", fill: "backwards" });
+        });
+        setTimeout(function () { busy = false; list.classList.remove("is-paging"); }, 560 + now.length * 55);
+      }, outMs);
+    };
+    nav.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; go(+b.dataset.p); });
+    // スマホ：写真の上を左右にスワイプしてもページ送り
+    var sx = 0, sy = 0, st = 0;
+    list.addEventListener("touchstart", function (e) { var t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
+    list.addEventListener("touchend", function (e) {
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - st < 700) go(pg + (dx < 0 ? 1 : -1));
+    }, { passive: true });
     draw(false);
   });
 
