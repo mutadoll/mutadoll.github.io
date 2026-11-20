@@ -117,7 +117,8 @@ document.documentElement.classList.add("js");
     });
   }
 
-  /* ---------- 斜めスラッシュとハート ---------- */
+  /* ---------- 背景のHUD（ロックオン枠・回るリング・システム表示）とピクセルハート ----------
+     並びは [形, 色, 向き, 横%, 縦%]。形：big=リング／thick=ロックオン枠／thin=小さい枠／small=システム表示／heart=ピクセルハート */
   var layouts = {
     hero:     [["big","blue","left",1,14],["small","black","left",20,4],["small","pink","right",36,90],["thick","pink","right",96,40],["thin","blue","left",58,2],["heart","pink","",47,1],["heart s","blue","",84,94],["heart s","pink","",4,70]],
     news:     [["big","blue","left",60,-4],["small","black","right",88,6],["thick","pink","left",1,40],["thin","blue","right",96,66],["heart","pink","",80,2]],
@@ -129,11 +130,20 @@ document.documentElement.classList.add("js");
     phead:    [["big","blue","left",4,18],["small","black","left",14,64],["thick","pink","right",88,22],["small","pink","right",95,70],["thin","blue","left",78,4],["heart","pink","",22,20],["heart s","blue","",86,46]],
     sub:      [["thick","pink","left",1,10],["small","black","right",96,30],["big","blue","right",97,64],["small","blue","left",2,74],["heart s","pink","",3,46]]
   };
+  var HUD_TXT = ["SYS // ONLINE", "MAID_SYNC 98%", "♡ HEART.EXE", "22:00 JST", "LOCK ON ▶", "MUTADOLL_OS", "WELCOME_HOME", "SIGNAL ▮▮▮▯", "OKAERI.EXE", "2ND & 4TH WED", "VRCHAT // LINK", "OSHI_SEARCH..."];
+  var HUD_KIND = { big: "ring", thick: "lock", thin: "lock --s", small: "txt" };
   document.querySelectorAll("[data-p]").forEach(function (box, bi) {
     (layouts[box.dataset.p] || []).forEach(function (d, i) {
-      var el = document.createElement("i"), t = d[0].split(" ");
-      el.className = "particle --" + t[0] + (t[1] ? " --" + t[1] : "") + " --" + d[1] + (d[2] ? " --" + d[2] : "");
-      el.style.cssText = "left:" + d[3] + "%;top:" + d[4] + "%;--dur:" + (6 + ((i * 7 + bi * 3) % 5)) + "s;--delay:" + (-((i * 13 + bi * 5) % 7)) + "s;--r:" + (((i * 29) % 40) - 20) + "deg";
+      var el = document.createElement("i"), t = d[0].split(" "), x = d[3];
+      var dur = "--dur:" + (6 + ((i * 7 + bi * 3) % 5)) + "s;--delay:" + (-((i * 13 + bi * 5) % 7)) + "s";
+      if (t[0] === "heart") {
+        el.className = "particle --heart" + (t[1] ? " --" + t[1] : "") + " --" + d[1];
+      } else {
+        var k = HUD_KIND[t[0]] || "lock";
+        el.className = "hud --" + k + " --" + d[1];
+        if (k === "txt") { var txt = HUD_TXT[(bi * 5 + i * 3) % HUD_TXT.length]; el.textContent = txt; el.style.setProperty("--n", txt.length); x = Math.min(x, 74); if (d[4] < 12) d = d.slice(0, 4).concat([12]); }
+      }
+      el.style.cssText += "left:" + x + "%;top:" + d[4] + "%;" + dur;
       box.appendChild(el);
     });
   });
