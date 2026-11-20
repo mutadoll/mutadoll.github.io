@@ -1,0 +1,20 @@
+{
+  "name": "兎ののの",
+  "show": true,
+  "image": "/uploads/cast/c48.webp",
+  "gen": 5,
+  "roles": [
+    "メイド",
+    "シンガー"
+  ],
+  "card": "兎ののの",
+  "catch": "元気大盛！甘えマシマシ！おバカ少々!?",
+  "bday": "1月13日",
+  "from": "うさぎ小屋",
+  "blood": "A型",
+  "likes": "えんがわとごはんとゲーム",
+  "skill": "歌・ハンドメイド・お絵描き",
+  "color": "#cbe8eb",
+  "color2": "#6fced7",
+  "order": 220
+}

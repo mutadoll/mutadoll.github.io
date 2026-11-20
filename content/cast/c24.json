@@ -1,0 +1,19 @@
+{
+  "name": "ぽたんちゅ",
+  "show": true,
+  "image": "/uploads/cast/c24.webp",
+  "gen": 4,
+  "roles": [
+    "メイド"
+  ],
+  "card": "ぽたんちゅ",
+  "catch": "タバコが似合うメイドって、ダメ？",
+  "bday": "6月4日",
+  "from": "夜だけの街",
+  "blood": "O型",
+  "likes": "タバコ・深夜のコンビニ",
+  "skill": "サボり",
+  "color": "#f4c3d5",
+  "color2": "#ee5991",
+  "order": 120
+}

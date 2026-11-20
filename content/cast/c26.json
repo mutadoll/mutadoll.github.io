@@ -1,0 +1,19 @@
+{
+  "name": "みかん",
+  "show": true,
+  "image": "/uploads/cast/c26.webp",
+  "gen": 5,
+  "roles": [
+    "メイド"
+  ],
+  "card": "みかん",
+  "catch": "伸び盛りの果実！柑橘ぱっしょんメイド",
+  "bday": "12月4日",
+  "from": "原っぱ",
+  "blood": "A型",
+  "likes": "かわいいの・音楽・ホラー",
+  "skill": "らくがき・歌・動き回る",
+  "color": "#e9d2ce",
+  "color2": "#d18375",
+  "order": 210
+}

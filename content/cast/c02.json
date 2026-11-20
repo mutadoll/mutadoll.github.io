@@ -1,0 +1,21 @@
+{
+  "name": "SEKAI",
+  "show": true,
+  "image": "/uploads/cast/c02.webp",
+  "gen": 1,
+  "roles": [
+    "店長",
+    "プレミアムメイド",
+    "ダンサー"
+  ],
+  "card": "SEKAI",
+  "catch": "秋葉原から世界へ！オタクに理解のある猫メイド♡",
+  "bday": "2月4日",
+  "from": "秋葉原",
+  "blood": "B型",
+  "likes": "やきにく・すし・ツナマヨ",
+  "skill": "つまみ喰い",
+  "color": "#ebcbde",
+  "color2": "#d770ac",
+  "order": 10
+}

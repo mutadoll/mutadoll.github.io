@@ -1,0 +1,19 @@
+{
+  "name": "花咲うさ",
+  "show": true,
+  "image": "/uploads/cast/c57.webp",
+  "gen": 5,
+  "roles": [
+    "メイド"
+  ],
+  "card": "花咲うさ",
+  "catch": "あまふわメイドさん、いかがですか？",
+  "bday": "2月15日",
+  "from": "北海道",
+  "blood": "O型",
+  "likes": "甘いもの・可愛いものや人",
+  "skill": "人がいればどこでも寝れる",
+  "color": "#cad8ed",
+  "color2": "#6b98dc",
+  "order": 240
+}

@@ -1,0 +1,1024 @@
+/* MUTADOLL 共通スクリプト（全ページ共通。要素があるページでだけ動く） */
+document.documentElement.classList.add("js");
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = matchMedia("(pointer: fine)").matches;
+  var pad = function (n) { return String(n).padStart(2, "0"); };
+  var root = document.documentElement, readyFns = [];
+  var onReady = function (fn) { if (root.classList.contains("is-ready")) fn(); else readyFns.push(fn); };
+  var setReady = function () { if (root.classList.contains("is-ready")) return; root.classList.add("is-ready"); readyFns.splice(0).forEach(function (f) { f(); }); };
+  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var ARROW = '<svg viewBox="0 0 16 12" aria-hidden="true"><use href="#i-arrow"/></svg>';
+
+  /* お知らせのデータ（新しい順）。管理画面（/admin）の「お知らせ」で追加・編集すると、
+     build.py が assets/news.js を作り直し、トップ・NEWS一覧・記事ページのすべてに反映されます。 */
+  var CAT = { event: ["イベント", "EVENT"], maid: ["メイド", "MAID"], menu: ["メニュー", "MENU"], info: ["お知らせ", "INFO"] };
+  var NEWS = (window.MD_NEWS || []).filter(function (n) { return CAT[n.cat]; });
+  var link = function (n) { return "news-detail.html#" + n.id; };
+  function thumb(n) {
+    var t = n.th;
+    if (t.img) return '<div class="th th-img"><img src="' + t.img + '" alt="" loading="lazy" style="object-position:' + (t.pos || "50% 20%") + '"></div>';
+    if (t.logo) return '<div class="th th-logo"><img src="img/logo.webp" alt="" loading="lazy"></div>';
+    return '<div class="th ' + t.cls + '"><span>' + t.t + (t.s ? "<small>" + t.s + "</small>" : "") + "</span></div>";
+  }
+
+  /* ---------- トップ：お知らせ ---------- */
+  var bento = $("news-bento");
+  if (bento) {
+    bento.classList.add("--n" + Math.min(NEWS.length, 5));
+    bento.innerHTML = NEWS.slice(0, 5).map(function (n, i) {
+      return '<a class="card glass rv' + (i === 0 ? " --feature" : "") + '" href="' + link(n) + '"><span class="card__cat">' + CAT[n.cat][0] + '</span><div class="card__thumb">' + thumb(n) +
+        '</div><div class="card__meta"><p class="card__date">' + n.date + '</p></div><p class="card__title">' + esc(n.title) + '</p><span class="card__check">CHECK<i>♡</i></span></a>';
+    }).join("");
+    var nl = document.querySelector("#news-list ul");
+    if (nl && NEWS.length <= 5) $("news-list").hidden = true;
+    if (nl) nl.innerHTML = NEWS.slice(5, 8).map(function (n) {
+      return '<li><a href="' + link(n) + '"><time>' + n.date + '</time><span class="cat">' + CAT[n.cat][1] + '</span><span class="t">' + esc(n.title) + "</span>" + ARROW + "</a></li>";
+    }).join("");
+  }
+
+  /* ---------- NEWS一覧：カテゴリとページ送り ---------- */
+  var nlist = $("nlist");
+  if (nlist) {
+    var PER = 6, cur = "all", page = 1, tabs = $("news-tabs"), pager = $("pager");
+    var cats = [["all", "すべて"]].concat(Object.keys(CAT).map(function (k) { return [k, CAT[k][0]]; }));
+    tabs.innerHTML = cats.map(function (c) {
+      var count = c[0] === "all" ? NEWS.length : NEWS.filter(function (n) { return n.cat === c[0]; }).length;
+      return '<button type="button" role="tab" data-cat="' + c[0] + '" aria-selected="' + (c[0] === cur) + '">' + c[1] + "<small>" + count + "</small></button>";
+    }).join("");
+    tabs.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; cur = b.dataset.cat; page = 1; drawNews(true); });
+    pager.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; page = Number(b.dataset.p); drawNews(true); });
+    function drawNews(scroll) {
+      var list = NEWS.filter(function (n) { return cur === "all" || n.cat === cur; }), pages = Math.max(1, Math.ceil(list.length / PER));
+      page = Math.min(page, pages);
+      [].forEach.call(tabs.children, function (b) { b.setAttribute("aria-selected", b.dataset.cat === cur); });
+      nlist.innerHTML = list.slice((page - 1) * PER, page * PER).map(function (n) {
+        return '<a class="nrow glass" href="' + link(n) + '"><div class="card__thumb">' + thumb(n) + '</div><div><div class="nrow__meta"><span class="card__cat">' + CAT[n.cat][0] +
+          '</span><span class="card__date">' + n.date + '</span></div><p class="nrow__title">' + esc(n.title) + '</p></div><span class="nrow__go">' + ARROW + "</span></a>";
+      }).join("") || '<p class="empty">このカテゴリのお知らせはまだありません。</p>';
+      var h = '<button type="button" class="--prev" aria-label="前のページ" data-p="' + (page - 1) + '"' + (page === 1 ? " disabled" : "") + ">" + ARROW + "</button>";
+      for (var p = 1; p <= pages; p++) h += '<button type="button" data-p="' + p + '"' + (p === page ? ' aria-current="page"' : "") + ">" + p + "</button>";
+      h += '<button type="button" class="--next" aria-label="次のページ" data-p="' + (page + 1) + '"' + (page === pages ? " disabled" : "") + ">" + ARROW + "</button>";
+      pager.innerHTML = h;
+      if (scroll) { var y = tabs.getBoundingClientRect().top + scrollY - 130; if (scrollY > y) scrollTo({ top: y, behavior: reduce ? "auto" : "smooth" }); }
+    }
+    drawNews(false);
+  }
+
+  /* ---------- 記事ページ ---------- */
+  var art = $("article");
+  if (art) {
+    var drawArticle = function () {
+      var id = location.hash.slice(1), i = 0;
+      NEWS.forEach(function (n, k) { if (n.id === id) i = k; });
+      var n = NEWS[i], newer = NEWS[i - 1], older = NEWS[i + 1];
+      if (!n) { art.innerHTML = '<p class="empty">お知らせはまだありません。</p>'; return; }
+      art.innerHTML = '<div class="card__thumb">' + thumb(n) + '</div><div class="article__meta"><span class="card__cat">' + CAT[n.cat][0] + '</span><span class="card__date">' + n.date +
+        '</span></div><h2 class="article__title">' + esc(n.title) + '</h2><div class="article__body">' + n.body + "</div>";
+      $("article-nav").innerHTML =
+        (newer ? '<a class="pn --prev" href="' + link(newer) + '"><small>‹ NEWER</small><span>' + esc(newer.title) + "</span></a>" : '<span class="ph"></span>') +
+        '<a class="btn" href="news.html"><span>BACK TO LIST</span><i>' + ARROW + "</i></a>" +
+        (older ? '<a class="pn --next" href="' + link(older) + '"><small>OLDER ›</small><span>' + esc(older.title) + "</span></a>" : '<span class="ph"></span>');
+      var cr = $("crumb-title"); if (cr) cr.textContent = n.title.length > 22 ? n.title.slice(0, 22) + "…" : n.title;
+      document.title = n.title + "｜MUTADOLL";
+    };
+    drawArticle();
+    addEventListener("hashchange", function () { drawArticle(); scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
+  }
+
+  /* ---------- 文字のデコード演出 ---------- */
+  var GLYPH = "ABCDEFGHKLNOPRSTUVXYZ0123456789#*+";
+  var scrBusy = 0, fitPending = false;
+  function scramble(root, dur) {
+    if (reduce || !root) return;
+    dur = dur || 700;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [], n;
+    while ((n = walker.nextNode())) if (n.nodeValue.trim()) nodes.push({ n: n, t: n.__orig || (n.__orig = n.nodeValue) });
+    var start = performance.now(); scrBusy++;
+    (function frame(now) {
+      var p = Math.min(1, (now - start) / dur);
+      nodes.forEach(function (o) { var t = o.t, keep = Math.floor(t.length * p), out = t.slice(0, keep); for (var k = keep; k < t.length; k++) out += t[k] === " " ? " " : GLYPH[(Math.random() * GLYPH.length) | 0]; o.n.nodeValue = out; });
+      if (p < 1) requestAnimationFrame(frame); else { nodes.forEach(function (o) { o.n.nodeValue = o.t; }); scrBusy--; if (!scrBusy && fitPending) { fitPending = false; fitTitle(); } }
+    })(start);
+  }
+
+  /* ---------- トップの大きな文字を幅いっぱいに ---------- */
+  function fitTitle() {
+    if (scrBusy > 0) { fitPending = true; return; }
+    document.querySelectorAll("#hero-title .lines").forEach(function (lines) {
+      if (getComputedStyle(lines).display === "none") return;
+      var W = lines.clientWidth, H = lines.clientHeight; if (!W) return;
+      var fits = lines.querySelectorAll(":scope > .fit"), sizes = [];
+      fits.forEach(function (f) { f.style.fontSize = "100px"; sizes.push(100 * W / (f.offsetWidth || 1)); });
+      fits.forEach(function (f, k) { f.style.fontSize = sizes[k] + "px"; });
+      var total = 0; fits.forEach(function (f) { total += f.offsetHeight; });
+      if (total > H) { var r = H / total; fits.forEach(function (f, k) { f.style.fontSize = (sizes[k] * r) + "px"; }); }
+    });
+  }
+
+  /* ---------- 斜めスラッシュとハート ---------- */
+  var layouts = {
+    hero:     [["big","blue","left",1,14],["small","black","left",20,4],["small","pink","right",36,90],["thick","pink","right",96,40],["thin","blue","left",58,2],["heart","pink","",47,1],["heart s","blue","",84,94],["heart s","pink","",4,70]],
+    news:     [["big","blue","left",60,-4],["small","black","right",88,6],["thick","pink","left",1,40],["thin","blue","right",96,66],["heart","pink","",80,2]],
+    about:    [["big","black","right",94,-6],["small","pink","left",4,72],["thick","blue","left",1,14],["heart s","pink","",40,2]],
+    maids:    [["thick","pink","left",1,44],["small","black","left",4,50],["thin","blue","right",96,30],["big","black","right",94,62],["heart","pink","",56,2]],
+    schedule: [["big","blue","left",1,6],["small","pink","right",94,8],["small","black","right",97,72],["heart s","blue","",36,1]],
+    guide:    [["thick","pink","right",95,6],["small","blue","left",2,44],["big","blue","right",97,60],["heart s","pink","",48,2]],
+    group:    [["small","black","left",4,10],["big","blue","right",94,6],["thick","pink","right",96,44],["heart","blue","",62,2]],
+    phead:    [["big","blue","left",4,18],["small","black","left",14,64],["thick","pink","right",88,22],["small","pink","right",95,70],["thin","blue","left",78,4],["heart","pink","",22,20],["heart s","blue","",86,46]],
+    sub:      [["thick","pink","left",1,10],["small","black","right",96,30],["big","blue","right",97,64],["small","blue","left",2,74],["heart s","pink","",3,46]]
+  };
+  document.querySelectorAll("[data-p]").forEach(function (box, bi) {
+    (layouts[box.dataset.p] || []).forEach(function (d, i) {
+      var el = document.createElement("i"), t = d[0].split(" ");
+      el.className = "particle --" + t[0] + (t[1] ? " --" + t[1] : "") + " --" + d[1] + (d[2] ? " --" + d[2] : "");
+      el.style.cssText = "left:" + d[3] + "%;top:" + d[4] + "%;--dur:" + (6 + ((i * 7 + bi * 3) % 5)) + "s;--delay:" + (-((i * 13 + bi * 5) % 7)) + "s;--r:" + (((i * 29) % 40) - 20) + "deg";
+      box.appendChild(el);
+    });
+  });
+
+  /* ---------- トップ：写真の切り替え（文字は固定、写真だけがグリッチで切り替わる） ---------- */
+  var slideBox = $("hero-slides");
+  if (slideBox) {
+    var slides = slideBox.querySelectorAll("img"), si = 0, sTimer, SINT = 5200, dotBox = $("hero-dots"), figEl = $("hero-fig");
+    var ensure = function (k) { var im = slides[(k + slides.length) % slides.length]; if (im.dataset.src && !im.getAttribute("src")) im.src = im.dataset.src; return im; };
+    var srcOf = function (k) { return 'url("' + new URL(ensure(k).getAttribute("src"), location.href).href + '")'; };
+    var total = $("hero-total"); if (total) total.textContent = pad(slides.length);
+    addEventListener("load", function () { setTimeout(function () { ensure(1); }, 600); });
+    figEl.style.setProperty("--src", srcOf(0));
+    $("hero-bar").style.setProperty("--int", SINT + "ms");
+    slides.forEach(function (im, k) {
+      var b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", "写真 " + (k + 1)); b.setAttribute("aria-current", k === 0 ? "true" : "false");
+      b.addEventListener("click", function () { showSlide(k); }); dotBox.appendChild(b);
+    });
+    var wantSlide = -1;
+    var showSlide = function (k) {
+      k = (k + slides.length) % slides.length; if (k === si) return;
+      var im = ensure(k); ensure(k + 1); wantSlide = k;
+      if (!im.complete && im.decode) { im.decode().catch(function () {}).then(function () { if (wantSlide === k) swapSlide(k); }); return; }
+      swapSlide(k);
+    };
+    var swapSlide = function (k) {
+      if (k === si) return;
+      var prev = slides[si], next = slides[k];
+      prev.classList.remove("is-on", "is-in"); prev.setAttribute("aria-hidden", "true");
+      next.classList.remove("is-in"); void next.offsetWidth; next.classList.add("is-on"); next.removeAttribute("aria-hidden");
+      figEl.style.setProperty("--src", srcOf(k));
+      if (!reduce) {
+        next.classList.add("is-in");
+        figEl.classList.remove("is-burst"); void figEl.offsetWidth; figEl.classList.add("is-burst");
+        setTimeout(function () { figEl.classList.remove("is-burst"); }, 900);
+        var sc = $("hero-scan"); sc.classList.remove("is-run"); void sc.offsetWidth; sc.classList.add("is-run");
+      }
+      si = k; $("hero-no").textContent = pad(k + 1);
+      [].forEach.call(dotBox.children, function (b, n) { b.setAttribute("aria-current", n === k ? "true" : "false"); });
+      restartSlides();
+    };
+    var restartSlides = function () {
+      clearInterval(sTimer);
+      var bar = $("hero-bar"), nb = bar.cloneNode(true); bar.parentNode.replaceChild(nb, bar);
+      if (!reduce) sTimer = setInterval(function () { showSlide(si + 1); }, SINT);
+    };
+    $("hero-prev").addEventListener("click", function () { showSlide(si - 1); });
+    $("hero-next").addEventListener("click", function () { showSlide(si + 1); });
+    onReady(restartSlides);
+  }
+
+  /* ---------- トップ：奥行き（マウス） ---------- */
+  var hero = $("hero"), fig = $("hero-fig");
+  if (hero && fig && !reduce && fine) {
+    fig.style.transition = "transform .8s cubic-bezier(.22,1,.36,1)";
+    hero.addEventListener("pointermove", function (e) {
+      var r = hero.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      fig.style.transform = "translate(" + (x * 22) + "px," + (y * 10) + "px)";
+      $("hero-title").style.translate = (-x * 12) + "px " + (-y * 8) + "px";
+    });
+    hero.addEventListener("pointerleave", function () { fig.style.transform = ""; $("hero-title").style.translate = ""; });
+  }
+
+  /* ---------- カーソルの光 ---------- */
+  var curEl = $("cursor");
+  if (curEl && !reduce && fine) {
+    var cx = -100, cy = -100, tx = -100, ty = -100;
+    addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; curEl.classList.add("is-on"); curEl.classList.toggle("is-hover", !!e.target.closest("a, button, summary")); }, { passive: true });
+    document.addEventListener("pointerleave", function () { curEl.classList.remove("is-on"); });
+    (function loop() { cx += (tx - cx) * .2; cy += (ty - cy) * .2; curEl.style.transform = "translate(" + cx + "px," + cy + "px)"; requestAnimationFrame(loop); })();
+  }
+
+  /* ---------- 営業日：第2・第4水曜日 22:00–23:15 JST（＋特別営業・お休み） ---------- */
+  var SPECIAL = {
+  };
+  var JST = 9 * 3600e3, DUR = 75 * 60e3, WD = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  var dkey = function (y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); };
+  function isRegular(y, m, d) { var n = Math.ceil(d / 7); return new Date(Date.UTC(y, m, d)).getUTCDay() === 3 && (n === 2 || n === 4); }
+  function isOpen(y, m, d) { var sp = SPECIAL[dkey(y, m, d)]; return sp ? sp.k !== "off" : isRegular(y, m, d); }
+  function openList(now, count) {
+    var j = new Date(now + JST), out = [];
+    for (var k = 0; k < 800 && out.length < count; k++) {
+      var dt = new Date(Date.UTC(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate() + k)), y = dt.getUTCFullYear(), m = dt.getUTCMonth(), d = dt.getUTCDate();
+      if (!isOpen(y, m, d)) continue;
+      var t = Date.UTC(y, m, d, 22, 0) - JST; if (t + DUR > now) out.push(t);
+    }
+    return out;
+  }
+  function md(t) { var j = new Date(t + JST); return pad(j.getUTCMonth() + 1) + "." + pad(j.getUTCDate()); }
+  function setNum(id, v) { var el = $(id); if (el.textContent !== v) { el.textContent = v; if (!reduce && id !== "cd-s") { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); } } }
+  var lastMd = "";
+  function tick() {
+    var now = Date.now(), jn = new Date(now + JST);
+    if ($("jst-clock")) $("jst-clock").textContent = pad(jn.getUTCHours()) + ":" + pad(jn.getUTCMinutes()) + ":" + pad(jn.getUTCSeconds());
+    if (!$("t-date")) return;
+    var list = openList(now, 4), t = list[0], j = new Date(t + JST), diff = Math.max(0, t - now), s = Math.floor(diff / 1000), m = md(t);
+    if (m !== lastMd) {
+      lastMd = m; $("t-date").innerHTML = m + "<small>" + WD[j.getUTCDay()] + "</small>";
+      var ul = $("upcoming");
+      if (ul) { ul.innerHTML = ""; list.forEach(function (tt, k) { var li = document.createElement("li"); li.innerHTML = md(tt) + "<small>" + (k === 0 ? "NEXT" : WD[new Date(tt + JST).getUTCDay()]) + "</small>"; ul.appendChild(li); }); }
+    }
+    setNum("cd-d", String(Math.floor(s / 86400))); setNum("cd-h", pad(Math.floor(s % 86400 / 3600))); setNum("cd-m", pad(Math.floor(s % 3600 / 60))); setNum("cd-s", pad(s % 60));
+    if (diff === 0 && $("t-note")) $("t-note").innerHTML = "<strong>ただいま営業中です。</strong> インスタンスリーダーへJOINしてご帰宅ください。";
+  }
+  if ($("jst-clock") || $("t-date")) { tick(); setInterval(tick, 1000); }
+
+  /* ---------- SCHEDULE：カレンダー ---------- */
+  var calBox = $("cal");
+  if (calBox) {
+    var nowJ = new Date(Date.now() + JST), todayKey = nowJ.getUTCFullYear() + "-" + pad(nowJ.getUTCMonth() + 1) + "-" + pad(nowJ.getUTCDate());
+    var html = "";
+    for (var mo = 0; mo < 2; mo++) {
+      var first = new Date(Date.UTC(nowJ.getUTCFullYear(), nowJ.getUTCMonth() + mo, 1)), Y = first.getUTCFullYear(), M = first.getUTCMonth(), days = new Date(Date.UTC(Y, M + 1, 0)).getUTCDate();
+      var g = ["SUN","MON","TUE","WED","THU","FRI","SAT"].map(function (w, k) { return '<span class="w' + (k === 0 ? " --sun" : k === 6 ? " --sat" : "") + '">' + w + "</span>"; }).join("");
+      for (var b = 0; b < first.getUTCDay(); b++) g += '<span class="d --blank"></span>';
+      for (var d = 1; d <= days; d++) {
+        var key = Y + "-" + pad(M + 1) + "-" + pad(d), wd = (first.getUTCDay() + d - 1) % 7, sp = SPECIAL[key], cls = "d", lab = "";
+        if (sp) { cls += " --" + sp.k; lab = sp.t; } else if (isRegular(Y, M, d)) { cls += " --open"; lab = "OPEN"; }
+        if (key < todayKey) cls += " --past";
+        if (key === todayKey) cls += " --today";
+        g += '<span class="' + cls + '"' + (sp ? ' title="' + esc(sp.d) + '"' : "") + ">" + d + (lab ? "<em>" + esc(lab) + "</em>" : "") + "</span>";
+      }
+      html += '<div class="cal glass rv"><div class="cal__head"><b class="grad-text">' + Y + "." + pad(M + 1) + '</b><span class="mono">' + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][M] + '</span></div><div class="cal__grid">' + g + "</div></div>";
+    }
+    calBox.innerHTML = html;
+    var ev = $("events");
+    if (ev) ev.innerHTML = Object.keys(SPECIAL).filter(function (k) { return k >= todayKey; }).sort().map(function (k) {
+      var sp = SPECIAL[k], dt = new Date(k + "T00:00:00Z");
+      return '<li class="glass rv"><time>' + k.slice(5).replace("-", ".") + " " + WD[dt.getUTCDay()] + '</time><span class="tag' + (sp.k === "off" ? " --off" : "") + '">' + esc(sp.t) + "</span><p>" + esc(sp.d) + "</p></li>";
+    }).join("") || '<li class="glass">予定されている特別営業はありません。</li>';
+  }
+
+  /* ---------- タブで絞り込み（MENU・FAQ） ---------- */
+  document.querySelectorAll("[data-filter]").forEach(function (tabs) {
+    var items = document.querySelectorAll(tabs.dataset.filter);
+    tabs.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      [].forEach.call(tabs.children, function (t) { t.setAttribute("aria-selected", t === b); });
+      var shownN = 0;
+      items.forEach(function (it) { it.hidden = !(b.dataset.cat === "all" || it.dataset.cat === b.dataset.cat); if (!it.hidden) shownN++; });
+      if (tabs.dataset.empty && $(tabs.dataset.empty)) $(tabs.dataset.empty).hidden = shownN > 0;
+    });
+  });
+
+  /* ---------- MEDIA：写真のページ送り（data-per 枚ずつ） ---------- */
+  document.querySelectorAll("[data-per]").forEach(function (list) {
+    var per = +list.dataset.per, items = [].slice.call(list.children), pages = Math.ceil(items.length / per), pg = 1, nav = list.nextElementSibling;
+    if (pages < 2 || !nav) return;
+    var draw = function (scroll) {
+      items.forEach(function (it, k) { it.hidden = Math.floor(k / per) + 1 !== pg; if (!it.hidden) it.classList.add("is-in"); });
+      var h = '<button type="button" class="--prev" aria-label="前のページ" data-p="' + (pg - 1) + '"' + (pg === 1 ? " disabled" : "") + ">" + ARROW + "</button>";
+      for (var p = 1; p <= pages; p++) h += '<button type="button" data-p="' + p + '"' + (p === pg ? ' aria-current="page"' : "") + ">" + p + "</button>";
+      h += '<button type="button" class="--next" aria-label="次のページ" data-p="' + (pg + 1) + '"' + (pg === pages ? " disabled" : "") + ">" + ARROW + "</button>";
+      nav.innerHTML = h;
+      if (scroll) scrollTo({ top: list.getBoundingClientRect().top + scrollY - 150, behavior: reduce ? "auto" : "smooth" });
+    };
+    nav.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; pg = +b.dataset.p; draw(true); });
+    draw(false);
+  });
+
+  /* ---------- GUIDELINES：目次の現在地 ---------- */
+  var toc = document.querySelectorAll(".toc a");
+  if (toc.length && "IntersectionObserver" in window) {
+    var secIo = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) toc.forEach(function (a) { a.classList.toggle("is-active", a.getAttribute("href") === "#" + e.target.id); }); });
+    }, { rootMargin: "-12% 0px -80% 0px" });
+    document.querySelectorAll(".gl__sec").forEach(function (s) { secIo.observe(s); });
+  }
+
+  /* ---------- MAIDS：集合写真の拡大表示 ---------- */
+  var lb = $("lightbox"), lbItems = document.querySelectorAll("#gallery [data-full]"), lbi = 0, lbLast;
+  function lbShow(k) {
+    lbi = (k + lbItems.length) % lbItems.length;
+    var b = lbItems[lbi], img = $("lb-img");
+    img.src = b.dataset.full; img.alt = b.querySelector("img").alt;
+    $("lb-cap").textContent = "PHOTO " + pad(lbi + 1) + " / " + pad(lbItems.length);
+  }
+  function lbClose() { if (!lb || lb.hidden) return; lb.hidden = true; document.body.style.overflow = ""; if (lbLast) lbLast.focus(); }
+  if (lb && lbItems.length) {
+    lbItems.forEach(function (b, k) { b.addEventListener("click", function () { lbLast = b; lbShow(k); lb.hidden = false; document.body.style.overflow = "hidden"; lb.querySelector(".lightbox__close").focus(); }); });
+    lb.querySelectorAll("[data-lb-close]").forEach(function (b) { b.addEventListener("click", lbClose); });
+    $("lb-prev").addEventListener("click", function () { lbShow(lbi - 1); });
+    $("lb-next").addEventListener("click", function () { lbShow(lbi + 1); });
+    addEventListener("keydown", function (e) {
+      if (lb.hidden) return;
+      if (e.key === "ArrowLeft") lbShow(lbi - 1); else if (e.key === "ArrowRight") lbShow(lbi + 1); else if (e.key === "Escape") lbClose();
+    });
+  }
+
+  /* ---------- MAIDS：キャスト一覧（期生・名前で絞り込み）とプロフィール ---------- */
+  var roster = $("croster");
+  if (roster) {
+    var cards = [].slice.call(roster.querySelectorAll(".ccard")), cq = $("cast-q"), ctabs = $("cast-tabs"), cm = $("cmodal"), cmBox = $("cm-box"), cmImg = $("cm-img"), cmIdx = 0, cmLast, cmWant = "", curGen = "all";
+    var PROF = {}; try { PROF = JSON.parse($("cast-data").textContent); } catch (e) {}
+    var shown = function () { return cards.filter(function (c) { return !c.hidden; }); };
+    var applyFilter = function () {
+      var v = cq.value.trim().toLowerCase(), n = 0;
+      cards.forEach(function (c) {
+        var p = PROF[c.dataset.id], hay = (c.dataset.name + " " + (p ? p.card : "")).toLowerCase();
+        var hit = (!v || hay.indexOf(v) > -1) && (curGen === "all" || c.dataset.gen === curGen);
+        c.hidden = !hit; if (hit) n++;
+      });
+      $("cast-count").textContent = n; $("cast-empty").hidden = n > 0;
+    };
+    cq.addEventListener("input", applyFilter);
+    if (ctabs) ctabs.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return; curGen = b.dataset.gen;
+      [].forEach.call(ctabs.children, function (t) { t.setAttribute("aria-selected", t === b); }); applyFilter();
+    });
+    var row = function (k, v) { return "<div><dt>" + k + "</dt><dd>" + esc(v) + "</dd></div>"; };
+    var cmShow = function (card) {
+      var list = shown(), d = card.dataset, p = PROF[d.id]; cmIdx = list.indexOf(card);
+      cmBox.style.setProperty("--c", card.style.getPropertyValue("--c"));
+      cmWant = d.id; cmImg.src = "img/cast/s/" + d.id + ".webp"; cmImg.alt = d.name;
+      var big = new Image(); big.onload = function () { if (cmWant === d.id) cmImg.src = big.src; }; big.src = "img/cast/" + d.id + ".webp";
+      $("cm-name").textContent = d.name; $("cm-no").textContent = "No." + d.no;
+      $("cm-catch").textContent = p ? p.catch : "";
+      $("cm-tags").innerHTML = p ? p.roles.map(function (r) { return '<span class="' + (/店長|メイド長/.test(r) ? "--lead" : "") + '">' + esc(r) + "</span>"; }).join("") + '<span class="--gen g' + p.gen + '">' + p.gen + "期生</span>" : '<span class="--gen g0">プロフィール準備中</span>';
+      $("cm-spec").innerHTML = p ? row("誕生日", p.bday) + row("出身地", p.from) + row("血液型", p.blood) + row("好きなモノ", p.likes) + row("特技", p.skill) : "";
+      $("cm-spec").hidden = !p; $("cm-empty").hidden = !!p;
+      $("cm-pos").textContent = pad(cmIdx + 1) + " / " + pad(list.length);
+    };
+    var cmClose = function () { if (cm.hidden) return; cm.hidden = true; document.body.style.overflow = ""; if (cmLast) cmLast.focus(); };
+    var cmStep = function (n) { var list = shown(); if (list.length) cmShow(list[(cmIdx + n + list.length) % list.length]); };
+    cards.forEach(function (c) {
+      var b = c.querySelector("button");
+      b.addEventListener("click", function () { cmLast = b; cmShow(c); cm.hidden = false; document.body.style.overflow = "hidden"; cm.querySelector(".cmodal__close").focus(); });
+    });
+    cm.querySelectorAll("[data-cm-close]").forEach(function (b) { b.addEventListener("click", cmClose); });
+    $("cm-prev").addEventListener("click", function () { cmStep(-1); });
+    var openMaid = function (id) {
+      var hc = roster.querySelector('.ccard[data-id="' + id + '"]'); if (!hc) return false;
+      if (hc.hidden) { cq.value = ""; curGen = "all"; if (ctabs) [].forEach.call(ctabs.children, function (t) { t.setAttribute("aria-selected", t.dataset.gen === "all"); }); applyFilter(); }
+      hc.scrollIntoView({ block: "center" }); cmLast = hc.querySelector("button"); cmShow(hc); cm.hidden = false; document.body.style.overflow = "hidden"; return true;
+    };
+    window.mdOpenMaid = openMaid;
+    var fromHash = function () { var h = location.hash.slice(1); if (/^c\d+$/.test(h)) setTimeout(function () { openMaid(h); }, 300); };
+    fromHash(); addEventListener("hashchange", fromHash);
+    $("cm-next").addEventListener("click", function () { cmStep(1); });
+    addEventListener("keydown", function (e) {
+      if (cm.hidden) return;
+      if (e.key === "ArrowLeft") cmStep(-1); else if (e.key === "ArrowRight") cmStep(1); else if (e.key === "Escape") cmClose();
+    });
+  }
+
+  /* ---------- はじめてのご帰宅ガイド（モーダル） ---------- */
+  var modal = $("modal"), lastFocus;
+  function closeModal() { if (!modal || modal.hidden) return; modal.hidden = true; if (lastFocus) lastFocus.focus(); }
+  if (modal) {
+    var openModal = function () { lastFocus = document.activeElement; modal.hidden = false; modal.querySelector(".modal__close").focus(); };
+    document.querySelectorAll("[data-open-about]").forEach(function (b) { b.addEventListener("click", openModal); });
+    modal.querySelectorAll("[data-close]").forEach(function (b) { b.addEventListener("click", closeModal); });
+  }
+
+  /* ---------- SPメニュー ---------- */
+  var mb = $("menu-btn");
+  function setMenu(open) { document.body.classList.toggle("menu-open", open); mb.setAttribute("aria-expanded", open); mb.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く"); }
+  if (mb) {
+    mb.addEventListener("click", function () { setMenu(!document.body.classList.contains("menu-open")); });
+    document.querySelectorAll(".sp-menu a").forEach(function (a) { a.addEventListener("click", function () { setMenu(false); }); });
+  }
+  addEventListener("keydown", function (e) { if (e.key === "Escape") { closeModal(); if (mb) setMenu(false); } });
+
+  /* ---------- TOPへ ---------- */
+  var gt = $("go-top");
+  if (gt) addEventListener("scroll", function () { gt.classList.toggle("is-show", scrollY > 500); }, { passive: true });
+
+  /* ---------- コピー ---------- */
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    var tx = b.querySelector("span") || b, label = tx.textContent;
+    b.addEventListener("click", function () {
+      var el = $(b.dataset.copy);
+      function done() { tx.textContent = "コピーしました"; setTimeout(function () { tx.textContent = label; }, 1800); }
+      function fb() { var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); tx.textContent = "選択しました"; }
+      try { navigator.clipboard.writeText(el.textContent).then(done, fb); } catch (e) { fb(); }
+    });
+  });
+
+  /* =========================================================
+     あそび：隠れハート（スタンプラリー）・推しメイドおみくじ・隠しコマンド
+     ========================================================= */
+  (function () {
+    var store = {
+      get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+      set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    };
+    var CLOSE = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>';
+    var HEART = '<svg viewBox="0 0 40 36" aria-hidden="true"><path d="M20 34 C7 25 2 18 2 11 C2 5 6 2 11 2 C15 2 18 4 20 8 C22 4 25 2 29 2 C34 2 38 5 38 11 C38 18 33 25 20 34 Z"/></svg>';
+    var mainEl = document.querySelector("main"), page = mainEl ? (mainEl.className.match(/page-([\w-]+)/) || [])[1] : "";
+
+    /* ---- 小さなお知らせ ---- */
+    var toast = document.createElement("div"); toast.className = "md-toast"; toast.setAttribute("role", "status"); document.body.appendChild(toast);
+    var tTimer; function say(h) { toast.innerHTML = h; toast.classList.add("is-on"); clearTimeout(tTimer); tTimer = setTimeout(function () { toast.classList.remove("is-on"); }, 2800); }
+
+    /* ---- ハートがはじける ---- */
+    function burst(x, y, n, spread) {
+      if (reduce) return;
+      var cols = ["#ff9cc6", "#f472a8", "#8fd3ff", "#c9b3f5", "#ffd36e"];
+      for (var k = 0; k < n; k++) {
+        var h = document.createElement("i"), a = Math.random() * Math.PI * 2, d = (spread || 120) * (.4 + Math.random() * .8);
+        h.className = "md-pop"; h.style.cssText = "left:" + x + "px;top:" + y + "px;--c:" + cols[k % cols.length] + ";--dx:" + Math.cos(a) * d + "px;--dy:" + (Math.sin(a) * d - 40) + "px;--r:" + (Math.random() * 120 - 60) + "deg;--s:" + (.5 + Math.random() * .8);
+        document.body.appendChild(h); setTimeout(function (el) { el.remove(); }.bind(null, h), 1300);
+      }
+    }
+
+    /* ---- ポップアップの土台 ---- */
+    var openM = null;
+    function makeModal(cls, label, inner) {
+      var m = document.createElement("div"); m.className = "md-modal " + cls; m.hidden = true;
+      m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-label", label);
+      m.innerHTML = '<div class="md-modal__bg" data-x></div><div class="md-modal__box"><button class="md-modal__close" type="button" data-x aria-label="閉じる">' + CLOSE + "</button>" + inner + "</div>";
+      document.body.appendChild(m);
+      m.querySelectorAll("[data-x]").forEach(function (b) { b.addEventListener("click", function () { closeModal2(m); }); });
+      return m;
+    }
+    function openModal2(m) { if (openM) closeModal2(openM); m.hidden = false; openM = m; document.body.style.overflow = "hidden"; var c = m.querySelector(".md-modal__close"); if (c) c.focus(); }
+    function closeModal2(m) { m.hidden = true; if (openM === m) openM = null; document.body.style.overflow = ""; }
+    addEventListener("keydown", function (e) { if (e.key === "Escape" && openM) closeModal2(openM); });
+
+    /* =========================================================
+       1. 隠れハート（8ページに1こずつ）
+       ========================================================= */
+    var SPOTS = [
+      { id: "top", page: "index", label: "TOP", sel: "#news .sec-head", x: 97, y: 2 },
+      { id: "about", page: "about", label: "ABOUT", sel: ".concept", x: 100, y: -4 },
+      { id: "maids", page: "maids", label: "MAIDS", sel: ".ctool", x: 99.5, y: 50 },
+      { id: "schedule", page: "schedule", label: "SCHEDULE", sel: ".cal-wrap", x: 100, y: -3 },
+      { id: "menu", page: "menu", label: "MENU", sel: ".rota", x: 94, y: 18 },
+      { id: "media", page: "media", label: "MEDIA", sel: ".share", x: 7, y: 16 },
+      { id: "guide", page: "guidelines", label: "GUIDELINES", sel: ".gl__doc", x: 50, y: 100 },
+      { id: "faq", page: "faq", label: "FAQ", sel: ".faq-more", x: 76, y: 4 }
+    ];
+    var got = store.get("md-hearts", []).filter(function (id) { return SPOTS.some(function (p) { return p.id === id; }); });
+    var isVip = function () { return got.length >= SPOTS.length; };
+
+    var badge = document.createElement("button"); badge.type = "button"; badge.className = "md-badge"; badge.setAttribute("aria-label", "シークレットスタンプカードを開く");
+    document.body.appendChild(badge);
+    var heroEl = document.querySelector(".hero");
+    function badgePos() { badge.classList.toggle("--away", !!heroEl && scrollY < heroEl.offsetHeight * .7); }
+    addEventListener("scroll", badgePos, { passive: true }); badgePos();
+    function drawBadge() { badge.innerHTML = HEART + "<span><b>" + got.length + "</b><small>/" + SPOTS.length + "</small></span>"; badge.hidden = got.length === 0; badge.classList.toggle("--vip", isVip()); }
+
+    var card = makeModal("md-stamp", "シークレットスタンプカード",
+      '<p class="md-stamp__label mono">SECRET STAMP CARD</p><h2 class="md-stamp__title">隠れハートを探せ！</h2>' +
+      '<p class="md-stamp__lead">サイトのどこかに、キラキラ光るハートが <b>' + SPOTS.length + 'こ</b> 隠れているよ。<br>ぜんぶ見つけると、なにかが起きるかも…♡</p>' +
+      '<div class="md-stamp__bar"><i id="md-bar"></i></div><p class="md-stamp__count mono"><b id="md-count">0</b> / ' + SPOTS.length + ' FOUND</p>' +
+      '<ul class="md-stamp__grid" id="md-grid"></ul><div class="md-stamp__vip" id="md-vip" hidden></div>' +
+      '<button class="md-stamp__reset" type="button" id="md-reset">スタンプをリセット</button>');
+    function drawCard() {
+      $("md-grid").innerHTML = SPOTS.map(function (p, k) {
+        var on = got.indexOf(p.id) > -1;
+        return '<li class="' + (on ? "is-on" : "") + '"><span class="md-stamp__no mono">' + pad(k + 1) + "</span>" + (on ? HEART : "<em>?</em>") + '<span class="md-stamp__pg mono">' + (on ? p.label : "???") + "</span></li>";
+      }).join("");
+      $("md-count").textContent = got.length; $("md-bar").style.width = (got.length / SPOTS.length * 100) + "%";
+      var v = $("md-vip"); v.hidden = !isVip();
+      if (isVip()) v.innerHTML = '<p class="mono">COMPLETE ♡ VIP MEMBER</p><p>ぜんぶ見つけてくれてありがとう！<br>あなたはMUTADOLLの <b>VIPご主人様・お嬢様</b> です♡</p><p class="md-stamp__word mono">SECRET WORD ▶ <b>mutadoll</b></p><p class="md-stamp__hint">キーボードで打ってみてね（スマホはロゴを長押し）</p><button class="btn" type="button" data-omikuji><span>推しメイドおみくじ</span><i>' + ARROW + "</i></button>";
+      bindOmikuji(v);
+    }
+    badge.addEventListener("click", function () { drawCard(); openModal2(card); });
+    $("md-reset").addEventListener("click", function () { got = []; store.set("md-hearts", got); applyVip(); drawBadge(); drawCard(); placeHeart(); say("スタンプをリセットしました"); });
+
+    function applyVip() {
+      root.classList.toggle("is-vip", isVip());
+      var em = document.querySelector(".mship__top em"), no = document.querySelector(".mship__no");
+      if (em) em.textContent = isVip() ? "VIP MEMBER" : "MEMBERSHIP CARD";
+      if (no) no.textContent = isVip() ? "VIP ♡ 2026 0008" : "MD ♡ 2026 0001";
+    }
+    function placeHeart() {
+      var sp = SPOTS.filter(function (p) { return p.page === page; })[0];
+      var old = document.querySelector(".secret-heart"); if (old) old.remove();
+      if (!sp || got.indexOf(sp.id) > -1) return;
+      var box = document.querySelector(sp.sel); if (!box) return;
+      if (getComputedStyle(box).position === "static") box.style.position = "relative";
+      var b = document.createElement("button"); b.type = "button"; b.className = "secret-heart"; b.setAttribute("aria-label", "隠れハート"); b.innerHTML = HEART;
+      b.style.left = sp.x + "%"; b.style.top = sp.y + "%";
+      b.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        if (got.indexOf(sp.id) < 0) got.push(sp.id); store.set("md-hearts", got);
+        var r = b.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 16, 110);
+        b.classList.add("is-got"); setTimeout(function () { b.remove(); }, 600);
+        drawBadge(); applyVip();
+        if (isVip()) { setTimeout(function () { burst(innerWidth / 2, innerHeight / 2, 60, 360); drawCard(); openModal2(card); }, 500); say("コンプリート！ <b>VIPご主人様・お嬢様</b> になりました♡"); }
+        else say("隠れハートを見つけた！ <b>" + got.length + "</b> / " + SPOTS.length);
+      });
+      box.appendChild(b);
+    }
+
+    /* =========================================================
+       2. 推しメイドおみくじ（フッターの「あなたの推しがきっと見つかる」）
+       ========================================================= */
+    var CAST = window.MD_CAST || [], last = "", omk = null;
+    var MENU = ["愛情大炎上カレー", "にゃん♡けーき", "おむらいす", "恋するぷりんあらもーど", "オリジナルソーダ", "とろける☆ふらぺちーの", "からふる☆あにまるそーだ", "メイドのお弁当♡", "ハンバーグ", "熱熱ラテ", "秘密の限定メニュー"];
+    var LUCK = ["超大吉", "大吉", "大吉", "中吉", "吉"];
+    function omikuji() {
+      if (!CAST.length) return;
+      if (!omk) {
+        omk = makeModal("md-omk", "推しメイドおみくじ",
+          '<p class="md-omk__label mono">OSHI MAID OMIKUJI</p><h2 class="md-omk__title">推しメイドおみくじ</h2>' +
+          '<div class="md-omk__stage"><div class="md-omk__cap" id="omk-cap"><i class="--t"></i><i class="--b"></i><span>?</span></div>' +
+          '<div class="md-omk__res" id="omk-res" hidden><figure class="md-omk__ph" id="omk-ph"><img id="omk-img" src="" alt=""></figure><div class="md-omk__info">' +
+          '<p class="md-omk__luck"><span class="mono">TODAY</span><b id="omk-luck"></b></p><p class="md-omk__lead">今日のあなたの推しメイドは…</p>' +
+          '<p class="md-omk__name" id="omk-name"></p><p class="md-omk__catch" id="omk-catch"></p>' +
+          '<dl class="md-omk__spec"><div><dt>相性</dt><dd id="omk-love"></dd></div><div><dt>ラッキーメニュー</dt><dd id="omk-menu"></dd></div></dl></div></div></div>' +
+          '<div class="md-omk__btns"><button class="btn" type="button" id="omk-draw"><span>おみくじを引く</span><i>' + ARROW + '</i></button><a class="btn" id="omk-prof" href="maids.html" hidden><span>プロフィール</span><i>' + ARROW + "</i></a></div>");
+        $("omk-draw").addEventListener("click", draw);
+        $("omk-prof").addEventListener("click", function (e) {
+          var id = this.getAttribute("href").split("#")[1];
+          if (window.mdOpenMaid) { e.preventDefault(); closeModal2(omk); if (history.replaceState) history.replaceState(null, "", "#" + id); window.mdOpenMaid(id); }
+        });
+      }
+      $("omk-res").hidden = true; $("omk-prof").hidden = true; $("omk-cap").className = "md-omk__cap";
+      $("omk-draw").querySelector("span").textContent = "おみくじを引く";
+      openModal2(omk);
+    }
+    function draw() {
+      var btn = $("omk-draw"), cap = $("omk-cap"), res = $("omk-res"); btn.disabled = true;
+      res.hidden = true; $("omk-prof").hidden = true; cap.className = "md-omk__cap"; void cap.offsetWidth; cap.classList.add("is-shake");
+      var m; do { m = CAST[Math.floor(Math.random() * CAST.length)]; } while (CAST.length > 1 && m.id === last); last = m.id;
+      var ok = function () {
+        cap.classList.add("is-open");
+        $("omk-ph").style.setProperty("--c", m.c); $("omk-img").src = "img/cast/s/" + m.id + ".webp"; $("omk-img").alt = m.n;
+        $("omk-name").textContent = m.n; $("omk-catch").textContent = m.t || "";
+        $("omk-luck").textContent = LUCK[Math.floor(Math.random() * LUCK.length)];
+        var love = 3 + Math.floor(Math.random() * 3); $("omk-love").innerHTML = '<span class="--on">' + "♥".repeat(love) + "</span>" + "♡".repeat(5 - love);
+        $("omk-menu").textContent = MENU[Math.floor(Math.random() * MENU.length)];
+        $("omk-prof").href = "maids.html#" + m.id;
+        setTimeout(function () {
+          res.hidden = false; $("omk-prof").hidden = false; btn.disabled = false; btn.querySelector("span").textContent = "もう一回引く";
+          var r = res.getBoundingClientRect(); burst(r.left + r.width * .3, r.top + r.height * .4, 22, 160);
+        }, reduce ? 0 : 420);
+      };
+      setTimeout(ok, reduce ? 0 : 1100);
+    }
+    function bindOmikuji(scope) { (scope || document).querySelectorAll("[data-omikuji]").forEach(function (b) { if (b.__omk) return; b.__omk = 1; b.addEventListener("click", function () { if (openM) closeModal2(openM); omikuji(); }); }); }
+
+    /* =========================================================
+       3. ひみつのことば（キーボードで入力）と、スマホ用のしかけ
+          mutadoll … MUTADOLL_OS ターミナル（ロゴを長押し）
+          chinchiro … メイドとチンチロ（MENUの「3ローテ目は…」を5回タップ）
+          omurice … オムライスにお絵描き（MENUの「おむらいす」を長押し）
+          okaeri … メイド大行進（フッターのロゴを5回タップ）
+          ＋ 第2・第4水曜 22:00〜23:15 だけの「開店モード」
+       ========================================================= */
+    var shuffle = function (a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+    var pick = function (a) { return a[Math.floor(Math.random() * a.length)]; };
+    var goMaid = function (id) { if (window.mdOpenMaid) { if (openM) closeModal2(openM); window.mdOpenMaid(id); } else location.href = "maids.html#" + id; };
+    var esc2 = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+    /* ---------- 1. MUTADOLL_OS ターミナル ---------- */
+    var term = null, hist = [], hpos = 0, openPreview = false;
+    function tPrint(html, cls) { var o = $("tm-out"), p = document.createElement("p"); p.className = cls || ""; p.innerHTML = html; o.appendChild(p); o.scrollTop = o.scrollHeight; }
+    var CMDS = [
+      ["help", "コマンドの一覧"], ["next", "次の営業日"], ["maids", "在籍メイドの数"], ["hearts", "隠れハートの進みぐあい"],
+      ["omikuji", "推しメイドおみくじ"], ["chinchiro", "メイドとチンチロ"], ["omurice", "オムライスにお絵描き"],
+      ["okaeri", "メイド大行進"], ["openmode", "開店モードをのぞき見"], ["whoami", "あなたはだれ？"], ["clear", "画面をきれいにする"], ["exit", "ターミナルを閉じる"]
+    ];
+    function run(raw) {
+      var cmd = raw.trim().toLowerCase(); if (!cmd) return;
+      tPrint('<span class="--p">master@mutadoll:~$</span> ' + esc2(raw), "--in");
+      hist.push(raw); hpos = hist.length;
+      var later = function (fn) { tPrint("起動します…", "--ok"); setTimeout(function () { closeModal2(term); fn(); }, 450); };
+      switch (cmd) {
+        case "help": tPrint(CMDS.map(function (c) { return '<b>' + c[0] + "</b>" + c[1]; }).join("<br>"), "--list"); break;
+        case "next":
+          var L = openList(Date.now(), 3);
+          tPrint(L.map(function (t, k) { var j = new Date(t + JST); return (k ? "　　　　 " : "NEXT OPEN ") + md(t) + " (" + WD[j.getUTCDay()] + ") 22:00–23:15 JST"; }).join("<br>"), "--ok"); break;
+        case "maids":
+          var gens = {}; CAST.forEach(function (c) { gens[c.g] = (gens[c.g] || 0) + 1; });
+          tPrint("在籍メイド：<b>" + CAST.length + "名</b><br>" + Object.keys(gens).sort(function (a, b) { return a - b; }).map(function (g) { return (+g ? g + "期生" : "その他") + " " + gens[g] + "名"; }).join(" / ") + '<br><a href="maids.html">→ MAIDS ページへ</a>', "--ok"); break;
+        case "hearts":
+          var rest = SPOTS.filter(function (p) { return got.indexOf(p.id) < 0; }).map(function (p) { return p.label; });
+          tPrint("隠れハート：<b>" + got.length + " / " + SPOTS.length + "</b>" + (rest.length ? "<br>まだのページ：" + rest.join(", ") : "<br>COMPLETE ♡ あなたはVIPです"), "--ok"); break;
+        case "omikuji": later(omikuji); break;
+        case "chinchiro": later(chinchiro); break;
+        case "omurice": later(omurice); break;
+        case "okaeri": case "parade": later(parade); break;
+        case "openmode": openPreview = !openPreview; checkOpen(); tPrint("開店モードのぞき見：<b>" + (openPreview ? "ON" : "OFF") + "</b>" + (page === "index" ? "" : '<br>（トップページで見られます → <a href="index.html">TOP</a>）'), "--ok"); break;
+        case "whoami": tPrint(isVip() ? "VIPご主人様・お嬢様 ♡" : "ご主人様・お嬢様", "--ok"); break;
+        case "sudo": case "sudo su": tPrint("Permission denied. メイド長に聞いてね♡", "--err"); break;
+        case "clear": $("tm-out").innerHTML = ""; break;
+        case "exit": case "quit": closeModal2(term); break;
+        default: tPrint("command not found: " + esc2(cmd) + "（<b>help</b> で一覧を表示）", "--err");
+      }
+    }
+    function terminal() {
+      if (!term) {
+        term = makeModal("md-term", "MUTADOLL_OS ターミナル",
+          '<div class="md-term__bar"><i></i><i></i><i></i><span class="mono">MUTADOLL_OS — terminal</span></div>' +
+          '<div class="md-term__screen" id="tm-out" aria-live="polite"></div>' +
+          '<form class="md-term__line" id="tm-form" autocomplete="off"><label class="--p" for="tm-in">master@mutadoll:~$</label><input id="tm-in" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" enterkeyhint="send" aria-label="コマンドを入力"></form>' +
+          '<div class="md-term__chips">' + CMDS.slice(1, 10).map(function (c) { return '<button type="button" data-cmd="' + c[0] + '">' + c[0] + "</button>"; }).join("") + "</div>");
+        $("tm-form").addEventListener("submit", function (e) { e.preventDefault(); var i = $("tm-in"); run(i.value); i.value = ""; });
+        $("tm-in").addEventListener("keydown", function (e) {
+          if (e.key === "ArrowUp" && hist.length) { e.preventDefault(); hpos = Math.max(0, hpos - 1); this.value = hist[hpos]; }
+          else if (e.key === "ArrowDown" && hist.length) { e.preventDefault(); hpos = Math.min(hist.length, hpos + 1); this.value = hist[hpos] || ""; }
+          else if (e.key === "Tab") { e.preventDefault(); var v = this.value.toLowerCase(), m = CMDS.filter(function (c) { return c[0].indexOf(v) === 0; }); if (m.length === 1) this.value = m[0][0]; }
+        });
+        term.querySelector(".md-term__chips").addEventListener("click", function (e) { var b = e.target.closest("[data-cmd]"); if (b) run(b.dataset.cmd); });
+        $("tm-out").addEventListener("click", function () { $("tm-in").focus(); });
+        var boot = ["MUTADOLL_OS v2.0 — VRChat maid café edition", "(c) 2026 MUTADOLL. All maids reserved ♡", "&gt; connecting to MUTADOLL 本店 ......... <b>OK</b>", "&gt; loading maids ...................... <b>" + CAST.length + "/" + CAST.length + "</b>", "ようこそ、ご主人様・お嬢様。<b>help</b> と入力すると、コマンドの一覧が出ます。"];
+        boot.forEach(function (l, k) { setTimeout(function () { tPrint(l, k < 2 ? "--sys" : "--ok"); }, reduce ? 0 : 140 * k); });
+      }
+      openModal2(term); setTimeout(function () { $("tm-in").focus({ preventScroll: true }); }, 80);
+    }
+
+    /* ---------- 2. メイドとチンチロ ---------- */
+    var chin = null, chMaid = null, chTries = 0, chBusy = false, chYou = null, chGen = 0, chSayT = 0;
+    var PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+    // 立方体のサイコロ（1の裏が6・2の裏が5・3の裏が4）。SHOW は、その目を正面に向ける角度
+    var SHOW = { 1: [0, 0], 6: [0, 180], 2: [0, -90], 5: [0, 90], 3: [-90, 0], 4: [90, 0] };
+    var faceHTML = function (v) { var h = '<span class="die3__f --f' + v + '">'; for (var k = 0; k < 9; k++) h += PIPS[v].indexOf(k) > -1 ? '<i class="on"></i>' : "<i></i>"; return h + "</span>"; };
+    var CUBE = [1, 2, 3, 4, 5, 6].map(faceHTML).join("");
+    var cubeT = function (v, z, ex, ey) { var a = SHOW[v]; return "rotateX(-18deg) rotateZ(" + z + "deg) rotateX(" + (a[0] + ex) + "deg) rotateY(" + (a[1] + ey) + "deg)"; };
+    var roll3 = function () { return [1, 2, 3].map(function () { return 1 + Math.floor(Math.random() * 6); }); };
+    function judge(d) {
+      var s = d.slice().sort(), a = s[0], b = s[1], c = s[2];
+      if (a === 1 && b === 1 && c === 1) return { v: 100, n: "ピンゾロ", k: "pin" };
+      if (a === b && b === c) return { v: 90 + a, n: a + "のゾロ目", k: "zoro" };
+      if (a === 4 && b === 5 && c === 6) return { v: 80, n: "シゴロ", k: "shigoro" };
+      if (a === 1 && b === 2 && c === 3) return { v: -10, n: "ヒフミ", k: "hifumi" };
+      if (a === b) return { v: 10 + c, n: c + "の目", k: "me" };
+      if (b === c) return { v: 10 + a, n: a + "の目", k: "me" };
+      return null;
+    }
+    var NOPT = { v: 0, n: "目なし", k: "none" };
+    function blankDice(box) { box.innerHTML = '<span class="die3 --blank"></span><span class="die3 --blank"></span><span class="die3 --blank"></span>'; }
+    function bowlHit(bowl) { bowl.classList.remove("is-hit"); void bowl.offsetWidth; bowl.classList.add("is-hit"); }
+    // どんぶりにサイコロを投げ入れる（上から落ちて2回はねて、くるくる回って目が止まる）
+    function throwDice(box, cb) {
+      var final = roll3(), g = chGen, bowl = box.parentNode;
+      box.innerHTML = final.map(function () { return '<span class="die3"><i class="die3__sh"></i><span class="die3__cube">' + CUBE + "</span></span>"; }).join("");
+      var dice = box.querySelectorAll(".die3"), side = Math.random() < .5 ? -1 : 1;
+      var fins = final.map(function (v) { return cubeT(v, Math.round(Math.random() * 36 - 18), 0, 0); });
+      dice.forEach(function (d, k) { d.querySelector(".die3__cube").style.transform = fins[k]; });
+      var done = function () { if (g === chGen) cb(final); };
+      if (reduce || !box.animate) return done();
+      var s = dice[0].getBoundingClientRect().width || 40, dur = 1080, EI = "cubic-bezier(.55,0,1,.45)", EO = "cubic-bezier(0,.55,.45,1)";
+      box.classList.add("is-rolling");
+      dice.forEach(function (d, k) {
+        var cube = d.querySelector(".die3__cube"), sh = d.querySelector(".die3__sh"), dl = k * 90;
+        var sx = side * s * (1.1 + Math.random() * 1.3), h = s * (2.6 + Math.random() * .9), z0 = side * (160 + Math.random() * 120);
+        d.animate([
+          { transform: "translate(" + sx + "px," + -h + "px) scale(1.35)", easing: EI },
+          { transform: "translate(" + sx * .42 + "px,0) scale(1)", offset: .42, easing: EO },
+          { transform: "translate(" + sx * .18 + "px," + -h * .32 + "px) scale(1.07)", offset: .6, easing: EI },
+          { transform: "translate(" + sx * .06 + "px,0) scale(1)", offset: .76, easing: EO },
+          { transform: "translate(" + sx * .02 + "px," + -h * .08 + "px) scale(1.01)", offset: .87, easing: EI },
+          { transform: "translate(0,0) scale(1)" }
+        ], { duration: dur, delay: dl, fill: "backwards" });
+        cube.animate([{ transform: cubeT(final[k], z0, side * (540 + 180 * (k % 2)), -side * (360 + 90 * k)) }, { transform: fins[k] }],
+          { duration: dur * .92, delay: dl, easing: "cubic-bezier(.12,.62,.3,1)", fill: "backwards" });
+        sh.animate([{ opacity: 0, transform: "scale(.3)" }, { opacity: 1, transform: "scale(1)", offset: .42 }, { opacity: .45, transform: "scale(.7)", offset: .6 }, { opacity: 1, transform: "scale(1)", offset: .76 }, { opacity: 1, transform: "scale(1)" }],
+          { duration: dur, delay: dl, fill: "backwards" });
+      });
+      [.42, .76].forEach(function (o) { setTimeout(function () { if (g === chGen) bowlHit(bowl); }, dur * o + 90); });
+      setTimeout(function () { box.classList.remove("is-rolling"); done(); }, dur + 260);
+    }
+    function chTurn(who) { $("ch-yside").classList.toggle("is-turn", who === "you"); $("ch-mside").classList.toggle("is-turn", who === "maid"); }
+    function chSay(t) { var b = $("ch-say"); b.textContent = t; b.classList.remove("is-on"); void b.offsetWidth; b.classList.add("is-on"); clearTimeout(chSayT); chSayT = setTimeout(function () { b.classList.remove("is-on"); }, 2200); }
+    function chShake() { var bx = chin.querySelector(".md-modal__box"); bx.classList.remove("is-shake"); void bx.offsetWidth; bx.classList.add("is-shake"); }
+    function chPop(el, t) { el.textContent = t; el.classList.remove("is-pop"); void el.offsetWidth; el.classList.add("is-pop"); }
+    // 役のカットイン（ピンゾロ・ゾロ目・シゴロ・ヒフミは大きく、目あり・目なしは小さく）
+    var CUT = { pin: ["PINZORO!!", "--gold"], zoro: ["ZOROME!", "--zoro"], shigoro: ["SHIGORO!", "--shigoro"], hifumi: ["HIFUMI…", "--hifumi"], me: ["POINT", "--me"], none: ["NO POINT", "--none"] };
+    function cutIn(j, who, sub, cb) {
+      var el = $("ch-cut"), big = j.k !== "me" && j.k !== "none", c = CUT[j.k], g = chGen;
+      el.className = "md-chin__cut " + c[1] + (big ? " --big" : "");
+      el.querySelector(".md-chin__cutWho").textContent = who;
+      el.querySelector(".md-chin__cutJp").textContent = j.n;
+      el.querySelector(".md-chin__cutEn").textContent = c[0] + (sub ? " — " + sub : "");
+      void el.offsetWidth; el.classList.add("is-on");
+      var r = $("ch-board").getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      if (j.k === "pin" || j.k === "zoro") { var f = $("ch-flash"); f.className = "md-chin__flash " + c[1]; void f.offsetWidth; f.classList.add("is-on"); burst(cx, cy, j.k === "pin" ? 44 : 30, 260); chShake(); }
+      else if (j.k === "shigoro") burst(cx, cy, 22, 200);
+      else if (j.k === "hifumi") chShake();
+      setTimeout(function () { el.classList.remove("is-on"); if (g === chGen && cb) cb(); }, reduce ? 400 : big ? 1650 : 900);
+    }
+    function chReset(msg) {
+      chGen++; chTries = 0; chYou = null; chBusy = false;
+      blankDice($("ch-ydice")); blankDice($("ch-mdice"));
+      $("ch-yrole").textContent = "—"; $("ch-mrole").textContent = "—";
+      $("ch-roll").hidden = false; $("ch-roll").disabled = false; $("ch-roll").querySelector("span").textContent = "サイコロを振る"; $("ch-again").hidden = true;
+      $("ch-stamp").classList.remove("is-on"); $("ch-cut").classList.remove("is-on"); chTurn("you");
+      $("ch-msg").innerHTML = msg || "<b>" + esc2(chMaid.n) + "</b>「勝負だよ、ご主人様♡ 先にどうぞ！」";
+      chSay(pick(["勝負だよ♡", "負けないよ〜！", "いざ、勝負♡"]));
+    }
+    function chScore() { var st = store.get("md-chin", { s: 0, b: 0 }); $("ch-streak").textContent = st.s; $("ch-best").textContent = st.b; return st; }
+    function chEnd(res) {
+      var st = chScore(), old = st.b;
+      if (res > 0) { st.s++; st.b = Math.max(st.b, st.s); } else if (res < 0) st.s = 0;
+      store.set("md-chin", st); chScore(); chTurn("");
+      var rec = res > 0 && st.b > old;
+      if (res > 0) { var sk = $("ch-sk"); sk.classList.remove("is-pop"); void sk.offsetWidth; sk.classList.add("is-pop"); }
+      var name = "<b>" + esc2(chMaid.n) + "</b>";
+      $("ch-msg").innerHTML = res > 0 ? '<span class="--win">WIN!</span> ' + name + "「" + pick(["つよいね〜！ 負けちゃった…", "えーっ！ ご主人様すごい！", "くやしい〜！ もう一回！"]) + "」"
+        : res < 0 ? '<span class="--lose">LOSE…</span> ' + name + "「" + pick(["やった〜！ わたしの勝ち♡", "ふふっ、出直してきてね♡", "今日はわたしがついてるみたい♡"]) + "」"
+        : '<span class="--draw">DRAW</span> ' + name + "「引き分け！ 気が合うね♡」";
+      chSay(res > 0 ? pick(["くやしい〜！", "うそ〜っ！", "まいりました…"]) : res < 0 ? pick(["やった〜♡", "勝っちゃった♡", "ふふん♡"]) : "引き分け〜！");
+      var s = $("ch-stamp");
+      s.className = "md-chin__stamp " + (res > 0 ? "--win" : res < 0 ? "--lose" : "--draw") + (rec ? " --rec" : "");
+      s.querySelector("b").textContent = res > 0 ? "WIN!" : res < 0 ? "LOSE…" : "DRAW";
+      void s.offsetWidth; s.classList.add("is-on");
+      setTimeout(chShake, reduce ? 0 : 260);
+      if (res > 0) { var r = $("ch-board").getBoundingClientRect(); setTimeout(function () { burst(r.left + r.width / 2, r.top + r.height / 2, 30, 240); }, 300); }
+      $("ch-roll").hidden = true; $("ch-again").hidden = false; chBusy = false;
+    }
+    function maidTurn(you) {
+      var tries = 0, g = chGen;
+      chTurn("maid");
+      (function go() {
+        if (g !== chGen) return;
+        tries++; $("ch-mrole").textContent = "…"; chSay(tries === 1 ? pick(["えいっ！", "いくよ〜！", "それっ♡"]) : pick(["もう一回！", "次こそ…！", "お願い〜！"]));
+        throwDice($("ch-mdice"), function (d) {
+          var j = judge(d);
+          if (!j && tries < 3) { chPop($("ch-mrole"), "目なし（あと" + (3 - tries) + "回）"); cutIn(NOPT, chMaid.n, "あと" + (3 - tries) + "回", function () { chSay("あれれ…"); setTimeout(go, 450); }); return; }
+          j = j || NOPT; chPop($("ch-mrole"), j.n);
+          if (j.k === "pin" || j.k === "zoro" || j.k === "shigoro") chSay("やったぁ♡");
+          else if (j.k === "hifumi") chSay("ひえぇ…");
+          cutIn(j, chMaid.n, "", function () { chEnd(you.v > j.v ? 1 : you.v < j.v ? -1 : 0); });
+        });
+      })();
+    }
+    function chRoll() {
+      if (chBusy) return; chBusy = true; chTries++; $("ch-roll").disabled = true; $("ch-yrole").textContent = "…";
+      chTurn("you"); chSay(pick(["がんばって〜！", "どきどき…", "いい目、出るかな？"]));
+      throwDice($("ch-ydice"), function (d) {
+        var j = judge(d);
+        if (!j && chTries < 3) {
+          chPop($("ch-yrole"), "目なし");
+          cutIn(NOPT, "ご主人様", "あと" + (3 - chTries) + "回", function () { $("ch-roll").disabled = false; $("ch-roll").querySelector("span").textContent = "もう一回振る（あと" + (3 - chTries) + "回）"; chBusy = false; });
+          return;
+        }
+        j = j || NOPT; chYou = j; chPop($("ch-yrole"), j.n);
+        if (j.k === "pin" || j.k === "zoro") chSay("うそっ…！？");
+        else if (j.k === "shigoro") chSay("つよい…！");
+        else if (j.k === "hifumi") chSay("あらら〜♡");
+        cutIn(j, "ご主人様", "", function () {
+          if (j.v < 0) return chEnd(-1);
+          $("ch-msg").innerHTML = "<b>" + esc2(chMaid.n) + "</b>「つぎはわたしの番だね…えいっ！」";
+          setTimeout(function () { maidTurn(j); }, 350);
+        });
+      });
+    }
+    function chinchiro() {
+      if (!chin) {
+        chin = makeModal("md-chin", "メイドとチンチロ",
+          '<p class="md-stamp__label mono">CHINCHIRO BATTLE</p><h2 class="md-omk__title">メイドとチンチロ</h2>' +
+          '<p class="md-chin__score mono"><span id="ch-sk">WIN STREAK <b id="ch-streak">0</b><em>+1</em></span><span>BEST <b id="ch-best">0</b></span></p>' +
+          '<div class="md-chin__board" id="ch-board">' +
+          '<div class="md-chin__side" id="ch-mside"><span class="md-chin__turn mono">MAID TURN</span><figure class="md-chin__ava" id="ch-ava"><img id="ch-img" src="" alt=""></figure><p class="md-chin__say" id="ch-say" aria-live="polite"></p><p class="md-chin__name" id="ch-name"></p><div class="md-chin__bowl"><div class="md-chin__dice" id="ch-mdice"></div></div><p class="md-chin__role" id="ch-mrole">—</p></div>' +
+          '<p class="md-chin__vs mono">VS</p>' +
+          '<div class="md-chin__side" id="ch-yside"><span class="md-chin__turn mono">YOUR TURN</span><figure class="md-chin__ava --you"><span class="mono">YOU</span></figure><p class="md-chin__name">ご主人様・お嬢様</p><div class="md-chin__bowl"><div class="md-chin__dice" id="ch-ydice"></div></div><p class="md-chin__role" id="ch-yrole">—</p></div>' +
+          '<div class="md-chin__cut" id="ch-cut" aria-hidden="true"><i class="md-chin__rays"></i><span class="md-chin__cutWho"></span><b class="md-chin__cutJp"></b><span class="md-chin__cutEn mono"></span></div>' +
+          '<div class="md-chin__stamp" id="ch-stamp" aria-hidden="true"><b></b><small class="mono">NEW RECORD!</small></div>' +
+          "</div>" +
+          '<p class="md-chin__msg" id="ch-msg" aria-live="polite"></p>' +
+          '<div class="md-omk__btns"><button class="btn" type="button" id="ch-roll"><span>サイコロを振る</span><i>' + ARROW + '</i></button><button class="btn" type="button" id="ch-again" hidden><span>もう一勝負</span><i>' + ARROW + '</i></button><button class="btn" type="button" id="ch-change"><span>メイドを変える</span><i>' + ARROW + "</i></button></div>" +
+          '<p class="md-chin__rule">役の強さ：ピンゾロ ＞ ゾロ目 ＞ シゴロ ＞ 目あり（6〜1）＞ 目なし ＞ ヒフミ<br>役が出るまで3回まで振れます。</p>' +
+          '<div class="md-chin__flash" id="ch-flash" aria-hidden="true"></div>');
+        $("ch-roll").addEventListener("click", chRoll);
+        $("ch-again").addEventListener("click", function () { chReset(); });
+        $("ch-change").addEventListener("click", function () { if (chBusy) return; chSetMaid(); chReset(); });
+      }
+      chSetMaid(); chScore(); openModal2(chin); chReset();
+    }
+    function chSetMaid() {
+      var c = pick(CAST); chMaid = c;
+      $("ch-img").src = "img/cast/s/" + c.id + ".webp"; $("ch-img").alt = c.n; $("ch-ava").style.setProperty("--c", c.c);
+      $("ch-name").textContent = c.n;
+    }
+
+    /* ---------- 3. オムライスにお絵描き ---------- */
+    var omu = null, cv, cx2, drawing = false, inkLen = 0, lastPt = null, omuMaid = null;
+    function omuBase() {
+      var W = cv.width, H = cv.height, s = W / 520;
+      cx2.setTransform(1, 0, 0, 1, 0, 0); cx2.clearRect(0, 0, W, H);
+      var g = cx2.createRadialGradient(W / 2, H * .52, W * .1, W / 2, H * .52, W * .48); g.addColorStop(0, "#ffffff"); g.addColorStop(.85, "#f6f2fb"); g.addColorStop(1, "#e3dcf2");
+      cx2.fillStyle = g; cx2.beginPath(); cx2.ellipse(W / 2, H * .52, W * .47, H * .44, 0, 0, Math.PI * 2); cx2.fill();
+      cx2.strokeStyle = "#ffb3d1"; cx2.lineWidth = 6 * s; cx2.setLineDash([2 * s, 12 * s]); cx2.lineCap = "round"; cx2.beginPath(); cx2.ellipse(W / 2, H * .52, W * .43, H * .4, 0, 0, Math.PI * 2); cx2.stroke(); cx2.setLineDash([]);
+      cx2.fillStyle = "rgba(46,42,58,.10)"; cx2.beginPath(); cx2.ellipse(W / 2, H * .58, W * .33, H * .24, 0, 0, Math.PI * 2); cx2.fill();
+      var e = cx2.createRadialGradient(W * .44, H * .42, W * .02, W / 2, H * .52, W * .36); e.addColorStop(0, "#fff6c2"); e.addColorStop(.5, "#ffd76a"); e.addColorStop(1, "#f2b33d");
+      cx2.fillStyle = e; cx2.beginPath(); cx2.ellipse(W / 2, H * .53, W * .33, H * .24, -.04, 0, Math.PI * 2); cx2.fill();
+      cx2.fillStyle = "rgba(255,255,255,.55)"; cx2.beginPath(); cx2.ellipse(W * .41, H * .43, W * .1, H * .035, -.3, 0, Math.PI * 2); cx2.fill();
+      inkLen = 0;
+    }
+    function omuPt(e) { var r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height }; }
+    function omuLine(a, b) {
+      var s = cv.width / 520;
+      cx2.lineCap = "round"; cx2.lineJoin = "round";
+      cx2.strokeStyle = "#c8102e"; cx2.lineWidth = 11 * s; cx2.beginPath(); cx2.moveTo(a.x, a.y); cx2.lineTo(b.x, b.y); cx2.stroke();
+      cx2.strokeStyle = "rgba(255,255,255,.35)"; cx2.lineWidth = 3 * s; cx2.beginPath(); cx2.moveTo(a.x - 2 * s, a.y - 2 * s); cx2.lineTo(b.x - 2 * s, b.y - 2 * s); cx2.stroke();
+      inkLen += Math.hypot(b.x - a.x, b.y - a.y) / s;
+    }
+    function omurice() {
+      if (!omu) {
+        omu = makeModal("md-omu", "オムライスにお絵描き",
+          '<p class="md-stamp__label mono">OMURICE DRAWING</p><h2 class="md-omk__title">オムライスにお絵描き</h2>' +
+          '<div class="md-omu__host"><figure class="md-omu__ava" id="omu-ava"><img id="omu-ava-img" src="" alt=""></figure><p class="md-omu__lead" id="omu-lead"></p></div>' +
+          '<div class="md-omu__stage"><canvas id="omu-cv" width="1040" height="800" aria-label="オムライス（指やマウスでケチャップを描けます）"></canvas><div class="md-omu__fx" id="omu-fx" aria-hidden="true"><span class="md-omu__fxava" id="omu-fxava"><img src="" alt=""></span></div></div>' +
+          '<div class="md-omu__res" id="omu-res" hidden><p class="md-omu__score"><span class="mono">LOVE</span><b id="omu-pt">0</b><small>%</small><em id="omu-rank">S</em></p><p class="md-omu__cmt" id="omu-cmt"></p>' +
+          '<figure class="md-omu__img"><img id="omu-img" alt="描いたオムライス"><figcaption>画像を長押し（右クリック）でも保存できます</figcaption></figure></div>' +
+          '<div class="md-omk__btns"><button class="btn" type="button" id="omu-clear"><span>消して描きなおす</span><i>' + ARROW + '</i></button><button class="btn --ink" type="button" id="omu-done"><span>萌え萌えきゅん♡</span><i>' + ARROW + '</i></button><a class="btn" id="omu-save" download="mutadoll-omurice.png" hidden><span>画像を保存</span><i>' + ARROW + "</i></a></div>");
+        cv = $("omu-cv"); cx2 = cv.getContext("2d");
+        cv.addEventListener("pointerdown", function (e) { if (!$("omu-res").hidden) return; drawing = true; lastPt = omuPt(e); cv.setPointerCapture(e.pointerId); omuLine(lastPt, { x: lastPt.x + .1, y: lastPt.y + .1 }); });
+        cv.addEventListener("pointermove", function (e) { if (!drawing) return; var p = omuPt(e); omuLine(lastPt, p); lastPt = p; });
+        ["pointerup", "pointercancel"].forEach(function (ev) { cv.addEventListener(ev, function () { drawing = false; }); });
+        $("omu-clear").addEventListener("click", omuStart);
+        $("omu-done").addEventListener("click", function () {
+          if (inkLen < 60) { say("ケチャップで何か描いてね♡"); return; }
+          var pt = Math.min(100, Math.round(72 + Math.min(inkLen, 2400) / 2400 * 20 + Math.random() * 8)), rank = pt >= 95 ? "S" : pt >= 85 ? "A" : "B";
+          $("omu-pt").textContent = pt; $("omu-rank").textContent = rank;
+          $("omu-cmt").innerHTML = '<span class="md-omu__mini" style="--c:' + omuMaid.c + '"><img src="img/cast/s/' + omuMaid.id + '.webp" alt=""></span><span><b>' + esc2(omuMaid.n) + "</b>「" + pick(["とってもじょうず！ おいしくなる魔法かけちゃうね♡", "かわいい〜！ 食べるのもったいないね♡", "愛情たっぷり！ 萌え萌えきゅん♡", "すてきな絵！ お店に飾りたいくらい♡"]) + "」</span>";
+          var url = omuExport(); $("omu-img").src = url; $("omu-save").href = url;
+          $("omu-res").hidden = false; $("omu-save").hidden = false; $("omu-done").hidden = true; $("omu-clear").querySelector("span").textContent = "もう一皿描く";
+          var fx = $("omu-fx"); fx.classList.remove("is-on"); void fx.offsetWidth; fx.classList.add("is-on");
+          var r = cv.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 36, 220);
+        });
+      }
+      omuStart(); openModal2(omu);
+    }
+    // 保存する画像：右下に、魔法をかけてくれたメイドの〇アイコンと名前を入れる
+    function omuExport() {
+      try {
+        var ex = document.createElement("canvas"), g = ex.getContext("2d"), W = cv.width, H = cv.height, s = W / 520, im = $("omu-ava-img");
+        ex.width = W; ex.height = H; g.drawImage(cv, 0, 0);
+        if (im.complete && im.naturalWidth) {
+          var r = 40 * s, x = W - r - 20 * s, y = H - r - 18 * s, H0 = 2 * r * im.naturalHeight / im.naturalWidth;
+          g.save(); g.shadowColor = "rgba(46,42,58,.35)"; g.shadowBlur = 14 * s; g.shadowOffsetY = 5 * s;
+          g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, r + 5 * s, 0, Math.PI * 2); g.fill(); g.restore();
+          g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.clip();
+          var gr = g.createRadialGradient(x, y - r * .4, r * .1, x, y, r); gr.addColorStop(0, "#fff"); gr.addColorStop(1, omuMaid.c || "#ffe3ef");
+          g.fillStyle = gr; g.fillRect(x - r, y - r, 2 * r, 2 * r);
+          g.drawImage(im, x - 1.5 * r, y - r - .06 * H0, 3 * r, 1.5 * H0); g.restore();
+          g.font = "700 " + 15 * s + "px 'IBM Plex Sans JP', sans-serif"; g.textBaseline = "middle";
+          var t = "♡ " + omuMaid.n, tw = g.measureText(t).width, px = x - r - 14 * s - tw - 24 * s, ph = 30 * s;
+          g.fillStyle = "rgba(255,255,255,.94)"; g.beginPath();
+          if (g.roundRect) g.roundRect(px, y - ph / 2, tw + 24 * s, ph, ph / 2); else g.rect(px, y - ph / 2, tw + 24 * s, ph);
+          g.fill(); g.fillStyle = "#f472a8"; g.fillText(t, px + 12 * s, y + 1 * s);
+        }
+        return ex.toDataURL("image/png");
+      } catch (err) { return cv.toDataURL("image/png"); }
+    }
+    function omuStart() {
+      omuMaid = pick(CAST); omuBase();
+      var src = "img/cast/s/" + omuMaid.id + ".webp";
+      $("omu-ava-img").src = src; $("omu-ava-img").alt = omuMaid.n; $("omu-ava").style.setProperty("--c", omuMaid.c);
+      var fa = $("omu-fxava"); fa.style.setProperty("--c", omuMaid.c); fa.querySelector("img").src = src; $("omu-res").hidden = true; $("omu-save").hidden = true; $("omu-done").hidden = false;
+      $("omu-clear").querySelector("span").textContent = "消して描きなおす"; $("omu-fx").classList.remove("is-on");
+      $("omu-lead").innerHTML = "<b>" + esc2(omuMaid.n) + "</b>「ケチャップで、すきな絵を描いてね♡ 描けたら、おいしくなる魔法をかけちゃいます！」";
+    }
+
+    /* ---------- 4. メイド大行進 ---------- */
+    var paradeEl = null, pTimers = [];
+    function endParade() { if (!paradeEl) return; pTimers.forEach(clearTimeout); pTimers = []; var el = paradeEl; paradeEl = null; el.classList.add("is-out"); setTimeout(function () { el.remove(); }, 500); }
+    function parade() {
+      if (paradeEl || !CAST.length) return;
+      if (openM) closeModal2(openM);
+      paradeEl = document.createElement("div"); paradeEl.className = "md-parade";
+      paradeEl.innerHTML = '<p class="md-parade__banner"><span class="mono">OKAERINASAIMASE</span><b>メイド大行進</b><small>メイドを押すとプロフィールが見られます</small></p><button class="md-parade__close" type="button" aria-label="大行進を終わる">' + CLOSE + "</button>";
+      document.body.appendChild(paradeEl);
+      paradeEl.querySelector(".md-parade__close").addEventListener("click", endParade);
+      var list = shuffle(CAST), gap = reduce ? 0 : 300, dur = 9000;
+      list.forEach(function (c, k) {
+        pTimers.push(setTimeout(function () {
+          if (!paradeEl) return;
+          var lane = k % 3, b = document.createElement("button"); b.type = "button"; b.className = "md-pm --l" + lane;
+          b.style.cssText = "--c:" + c.c + ";--c2:" + c.c2 + ";--d:" + (dur + (k % 5) * 400) + "ms";
+          b.setAttribute("aria-label", c.n + "のプロフィールを見る");
+          b.innerHTML = '<span class="md-pm__ph"><img src="img/cast/s/' + c.id + '.webp" alt=""></span><span class="md-pm__nm">' + esc2(c.n) + "</span>";
+          b.addEventListener("click", function () { endParade(); goMaid(c.id); });
+          b.addEventListener("animationend", function (e) { if (e.animationName === "pmWalk") b.remove(); });
+          paradeEl.appendChild(b);
+        }, k * gap));
+      });
+      pTimers.push(setTimeout(endParade, list.length * gap + dur + 2200));
+      say("おかえりなさいませ♡ メイド大行進！");
+    }
+
+    /* ---------- 5. 開店モード（第2・第4水曜 22:00〜23:15 だけ） ---------- */
+    var titleBackup = null, openBadge = null;
+    function nowOpen() { var j = new Date(Date.now() + JST), mins = j.getUTCHours() * 60 + j.getUTCMinutes(); return isOpen(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate()) && mins >= 22 * 60 && mins < 23 * 60 + 15; }
+    function checkOpen() {
+      var on = nowOpen() || openPreview;
+      if (on === root.classList.contains("is-open-now")) return;
+      root.classList.toggle("is-open-now", on);
+      if (!openBadge) {
+        openBadge = document.createElement("a"); openBadge.className = "md-open"; openBadge.href = "schedule.html";
+        openBadge.innerHTML = "<i></i><b>NOW OPEN</b><span>ただいま営業中</span>";
+        var hd = document.querySelector(".header"), ref = document.querySelector(".h-join") || document.querySelector(".h-x");
+        if (hd) hd.insertBefore(openBadge, ref);
+      }
+      var t = $("hero-title"); if (!t) return;
+      var lp = t.querySelector(".lines--pc"), ls = t.querySelector(".lines--sp");
+      if (on) {
+        titleBackup = titleBackup || { pc: lp.innerHTML, sp: ls.innerHTML, label: t.getAttribute("aria-label") };
+        lp.innerHTML = '<span class="fit">OKAERI<span class="g">NASAIMASE</span></span>';
+        ls.innerHTML = '<span class="fit">OKAERI</span><span class="fit"><span class="g">NASAIMASE</span></span>';
+        t.setAttribute("aria-label", "おかえりなさいませ（ただいま営業中）");
+      } else if (titleBackup) { lp.innerHTML = titleBackup.pc; ls.innerHTML = titleBackup.sp; t.setAttribute("aria-label", titleBackup.label); }
+      fitTitle(); t.querySelectorAll(".fit").forEach(function (f, k) { setTimeout(function () { scramble(f, 700); }, k * 130); });
+    }
+    onReady(checkOpen); setInterval(checkOpen, 30000);
+
+    /* ---------- ひみつのことば・スマホ用のしかけ ---------- */
+    var WORDS = { mutadoll: terminal, chinchiro: chinchiro, omurice: omurice, okaeri: parade };
+    var typed = "";
+    addEventListener("keydown", function (e) {
+      var t = e.target; if (t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName))) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return;
+      typed = (typed + e.key.toLowerCase()).slice(-12);
+      for (var w in WORDS) if (typed.slice(-w.length) === w) { typed = ""; WORDS[w](); break; }
+    });
+    function onTaps(el, n, fn) { if (!el) return; var ts = []; el.addEventListener("click", function () { var now = Date.now(); ts = ts.filter(function (x) { return now - x < 1800; }); ts.push(now); if (ts.length >= n) { ts = []; fn(); } }); }
+    function onHold(el, ms, fn) {
+      if (!el) return; var tm, fired = false;
+      el.classList.add("md-holdable");
+      el.addEventListener("pointerdown", function () { fired = false; clearTimeout(tm); tm = setTimeout(function () { fired = true; fn(); }, ms); });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(function (ev) { el.addEventListener(ev, function () { clearTimeout(tm); }); });
+      el.addEventListener("click", function (e) { if (fired) { e.preventDefault(); e.stopPropagation(); fired = false; } }, true);
+      el.addEventListener("contextmenu", function (e) { if (fired || e.pointerType !== "mouse") e.preventDefault(); });
+    }
+    onHold(document.querySelector(".h-logo"), 800, terminal);
+    onTaps(document.querySelector(".rota"), 5, chinchiro);
+    [].forEach.call(document.querySelectorAll(".menu__list li"), function (li) { var t = li.querySelector(".dish__title"); if (t && t.textContent.trim() === "おむらいす") onHold(li, 700, omurice); });
+    var fl = document.querySelector(".f-logo");
+    if (fl) { var fts = [], ftm; fl.addEventListener("click", function (e) { e.preventDefault(); var now = Date.now(); fts = fts.filter(function (x) { return now - x < 1500; }); fts.push(now); clearTimeout(ftm); if (fts.length >= 5) { fts = []; parade(); return; } ftm = setTimeout(function () { if (fts.length === 1) location.href = fl.href; }, 420); }); }
+
+    drawBadge(); applyVip(); placeHeart(); bindOmikuji();
+  })();
+
+  /* ---------- 出てくる動き＋見出しデコード ---------- */
+  if ("IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("is-in"); var t = e.target.querySelector(".sec-head__en, .faq__label b, .sub-h b"); if (t) scramble(t, 800); io.unobserve(e.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
+    document.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
+  } else document.querySelectorAll(".rv").forEach(function (el) { el.classList.add("is-in"); });
+
+  /* ---------- 起動演出（初回ロード） ---------- */
+  var loader = $("loader");
+  if (!loader || reduce) { if (loader) loader.classList.add("is-gone"); setReady(); }
+  else (function () {
+    var seen = false;
+    try { seen = sessionStorage.getItem("md-boot") === "1"; sessionStorage.setItem("md-boot", "1"); } catch (e) {}
+    var hearts = $("ld-hearts"), cols = ["#ff9cc6", "#f472a8", "#8fd3ff", "#c9b3f5", "#ffc2dc"];
+    for (var h = 0; h < 14; h++) {
+      var hi = document.createElement("i");
+      hi.style.cssText = "left:" + ((h * 37 + 7) % 100) + "%;--c:" + cols[h % cols.length] + ";--s:" + (.35 + (h * 13 % 10) / 14) + ";--d:" + (3.2 + (h * 7 % 5) * .55) + "s;--dl:" + (-(h * 0.43) % 4).toFixed(2) + "s;--r:" + ((h * 23 % 40) - 20) + "deg";
+      hearts.appendChild(hi);
+    }
+    var fill = $("ld-fill"), chibi = $("ld-chibi"), num = $("ld-pct"), logs = loader.querySelectorAll("#ld-log li");
+    var STEPS = [1, 24, 50, 74, 97], pct = 0, start = performance.now(), MIN = 3900, MAX = 6500, loaded = document.readyState === "complete", state = 0;
+    addEventListener("load", function () { loaded = true; });
+    var render = function () {
+      fill.style.width = pct + "%"; chibi.style.left = pct + "%";
+      num.textContent = String(Math.round(pct)).padStart(3, "0");
+      logs.forEach(function (li, k) { if (pct >= STEPS[k]) li.classList.add("is-show"); });
+    };
+    var out = function () {
+      if (state > 1) return; state = 2;
+      loader.classList.add("is-out");
+      setTimeout(function () { loader.classList.add("is-clear"); setReady(); }, 720);
+      setTimeout(function () { loader.classList.add("is-gone"); }, 1500);
+    };
+    var finish = function (fast) {
+      if (state) return; state = 1; pct = 100; render();
+      loader.classList.add("is-done");
+      setTimeout(out, fast ? 250 : 650);
+    };
+    loader.addEventListener("click", function () { if (!state) finish(true); else out(); });
+    loader.classList.add("is-on");
+    (function step(now) {
+      if (state) return;
+      var t = now - start, tp = Math.min(1, t / MIN), target = (1 - Math.pow(1 - tp, 2.4)) * 100;
+      if (!loaded && t < MAX) target = Math.min(target, 92);
+      pct += (target - pct) * 0.16; if (target >= 100 && pct > 99.4) pct = 100;
+      render();
+      if (pct >= 100) setTimeout(finish, 180); else requestAnimationFrame(step);
+    })(start);
+  })();
+
+  /* ---------- 読み込み時 ---------- */
+  if ($("hero-title")) {
+    fitTitle();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+    var rt; addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fitTitle, 120); });
+    onReady(function () { setTimeout(function () { document.querySelectorAll("#hero-title .fit").forEach(function (f, k) { setTimeout(function () { scramble(f, 700); }, (k % 4) * 130); }); }, 250); });
+  }
+  var ph = document.querySelector(".phead__en");
+  if (ph) setTimeout(function () { scramble(ph, 800); }, 150);
+})();

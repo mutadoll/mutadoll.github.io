@@ -1,0 +1,201 @@
+<!-- ===== HERO ===== -->
+  <section class="hero" aria-label="トップ">
+    <div class="particles" data-p="hero"></div>
+    <div class="hero__wrap" id="hero">
+      <div class="board">
+        <div class="floor" aria-hidden="true"></div>
+        <h1 class="hero__title" id="hero-title" aria-label="Welcome to MUTADOLL">
+          <span class="lines lines--pc" aria-hidden="true"><span class="fit">WELCOME TO <span class="g">MUTADOLL</span></span></span>
+          <span class="lines lines--sp" aria-hidden="true"><span class="fit">WELCOME TO</span><span class="fit"><span class="g">MUTADOLL</span></span></span>
+        </h1>
+        <div class="scan" aria-hidden="true"></div>
+      </div>
+      <div class="hero__fig" id="hero-fig">
+        <div class="hero__slides" id="hero-slides">
+{{HERO_SLIDES}}
+        </div>
+        <i class="hero__glitch" aria-hidden="true"></i><i class="hero__glitch --b" aria-hidden="true"></i>
+        <i class="hero__scanline" id="hero-scan" aria-hidden="true"></i>
+      </div>
+      <div class="hero__pager" aria-label="写真の切り替え">
+        <button class="arr" type="button" id="hero-prev" aria-label="前の写真"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3L5 7l4 4"/></svg></button>
+        <span class="hero__pager__no mono"><b id="hero-no">01</b> / <span id="hero-total">12</span></span>
+        <span class="hero__pager__dots" id="hero-dots"></span>
+        <button class="arr" type="button" id="hero-next" aria-label="次の写真"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg></button>
+        <i class="hero__pager__bar" id="hero-bar"></i>
+      </div>
+      <div class="hero__hud">
+        <div class="board__meta mono"><span><b>●</b> MUTADOLL_OS // VRChat MAID CAFÉ <span class="pcvr">PCVR / DESKTOP</span></span><span class="hud-clock">JST <em id="jst-clock">--:--:--</em> · SIGNAL <em class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i></em></span></div>
+        <div class="hud-corners" aria-hidden="true"><i></i><i></i></div>
+      </div>
+      <button class="hero__book" type="button" id="open-about" data-open-about aria-haspopup="dialog" aria-label="はじめての方へ（ご帰宅ガイドを開く）">
+        <span class="mship" aria-hidden="true"><span class="mship__holo"></span><span class="mship__top"><img src="img/logo.webp" alt="" width="960" height="239"><em>MEMBERSHIP CARD</em></span><span class="mship__chip"></span><span class="mship__no">MD ♡ 2026 0001</span><span class="mship__bottom"><span class="mship__name"><small>MEMBER</small>ご主人様・お嬢様</span><span class="mship__guide">GUIDE<i>♡</i></span></span></span>
+        <span class="hero__bubble">MUTADOLLについて<br>くわしくはこちら<b>♡</b></span>
+        <span class="hero__open" aria-hidden="true">OPEN</span>
+      </button>
+    </div>
+  </section>
+
+  <div class="band" aria-hidden="true">
+    <div class="band__track">
+      <div class="band__item">WELCOME TO MUTADOLL<i>♡</i><span class="o">VRCmaidevent</span><i>♡</i>PCVR &amp; DESKTOP<i>♡</i><span class="o">2ND &amp; 4TH WEDNESDAY</span><i>♡</i></div>
+      <div class="band__item">WELCOME TO MUTADOLL<i>♡</i><span class="o">VRCmaidevent</span><i>♡</i>PCVR &amp; DESKTOP<i>♡</i><span class="o">2ND &amp; 4TH WEDNESDAY</span><i>♡</i></div>
+    </div>
+  </div>
+
+  <!-- ===== NEWS ===== -->
+  <section class="news" id="news">
+    <div class="particles" data-p="news"></div>
+    <div class="inner">
+      <div class="sec-head rv"><h2 class="sec-head__en grad-text">NEWS</h2><div class="sec-head__side"><p class="sec-head__jp">ニュース</p><p class="sec-head__code mono">// LATEST_INFO</p></div><i class="sec-head__line"></i></div>
+      <div class="news__bento" id="news-bento"></div>
+      <div class="news__foot">
+        <div class="news__list rv" id="news-list"><ul></ul></div>
+        <a class="btn rv" href="news.html"><span>VIEW ALL</span><i>{{ARROW}}</i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section class="about" id="about">
+    <div class="particles" data-p="about"></div>
+    <div class="inner">
+      <div class="sec-head rv"><h2 class="sec-head__en grad-text">ABOUT</h2><div class="sec-head__side"><p class="sec-head__jp">MUTADOLLについて</p><p class="sec-head__code mono">// WHO_WE_ARE</p></div><i class="sec-head__line"></i></div>
+      <div class="about__wrap">
+        <p class="about__bg" aria-hidden="true">WELCOME<br>HOME</p>
+        <div class="about__visual rv"><img src="img/about.webp" alt="MUTADOLLのメイド全員の集合写真" width="2400" height="1600" loading="lazy" decoding="async"></div>
+        <div class="about__card glass rv">
+          <div class="about__main">
+            <p class="about__script">お帰りなさいませご主人様！</p>
+            <p class="about__lead">MUTADOLLへようこそ！</p>
+            <div class="about__text">
+            <p>MUTADOLLは、VRChatで第2・第4水曜日の夜にひらくVRメイド喫茶イベントです！メイドがご主人様方をお席へご案内し、ご注文のメニューにおいしくなる魔法をかけてお給仕させていただきます！営業日ごとにメイドとのゲームもしくはシンガーメイドによるライブがございます♡</p>
+            <p>MUTADOLLはPCVR・デスクトップ限定のイベントです。声を発した会話ができることが必須となります。VRChatを始めたばかりの方・イベント初心者の方も歓迎です！</p>
+          </div>
+          </div>
+          <div class="about__side">
+            <p class="about__side-h"><b class="mono">FLOW</b><span>ご帰宅の流れ</span></p>
+            <ol class="flow2" aria-label="ご帰宅の流れ"><li><b>01</b><span>フレンド<wbr>申請</span></li><li><b>02</b><span>入店</span></li><li><b>03</b><span>お出迎え</span></li><li><b>04</b><span>お給仕</span></li><li><b>05</b><span>お出かけ</span></li></ol>
+            <div class="about__btn btns"><button class="btn" type="button" data-open-about><span>FIRST VISIT</span><i>{{ARROW}}</i></button><a class="btn" href="about.html"><span>MORE</span><i>{{ARROW}}</i></a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MAIDS ===== -->
+  <section class="maids" id="maids">
+    <div class="particles" data-p="maids"></div>
+    <div class="inner">
+      <div class="sec-head rv"><h2 class="sec-head__en grad-text">MAIDS</h2><div class="sec-head__side"><p class="sec-head__jp">メイド紹介</p><p class="sec-head__code mono">// MAID_PROFILE</p></div><i class="sec-head__line"></i></div>
+      <div class="cast">
+        <figure class="cast__fig rv">
+          <div class="floor" aria-hidden="true"></div>
+          <img src="img/pickup.webp" alt="MUTADOLLのメイドたち（左からスフィア・ふらん・SEKAI・ゆきた・甘咬うるる）" width="2560" height="1280" loading="lazy" decoding="async">
+          <ul class="cast__tags" aria-hidden="true">
+            <li style="--x:14%;--c:#b7aee6">スフィア</li>
+            <li style="--x:31%;--c:#a9dcff">ふらん</li>
+            <li style="--x:48%;--c:#ff9cc6">SEKAI</li>
+            <li style="--x:67.5%;--c:#e3b48e">ゆきた</li>
+            <li style="--x:83%;--c:#b49af0">甘咬うるる</li>
+          </ul>
+          <p class="cast__hud mono" aria-hidden="true"><b>◉</b> PICK UP // 05 OF {{CASTN}}</p>
+          <div class="hud-corners" aria-hidden="true"><i></i><i></i></div>
+        </figure>
+        <div class="cast__info glass rv">
+          <div>
+            <p class="cast__label mono">MAID PROFILES</p>
+            <p class="cast__num" aria-label="{{CASTN}}名"><span class="grad-text">{{CASTN}}</span><i>♡</i></p>
+          </div>
+          <div>
+            <p class="cast__lead">在籍キャストはメイドイベント最大数！</p>
+            <p class="cast__text">個性ゆたかなメイドたちが、ご主人様・お嬢様をお出迎えします！</p>
+          </div>
+          <div>
+            <div class="cast__load mono" aria-hidden="true"><p><span>PROFILES</span><b>ONLINE</b></p><i></i></div>
+            <a class="btn" href="maids.html"><span>VIEW ALL MAIDS</span><i>{{ARROW}}</i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SCHEDULE ===== -->
+  <section class="schedule" id="schedule">
+    <div class="particles" data-p="schedule"></div>
+    <div class="inner">
+      <div class="sec-head rv"><h2 class="sec-head__en grad-text">SCHEDULE</h2><div class="sec-head__side"><p class="sec-head__jp">営業案内</p><p class="sec-head__code mono">// OPEN_HOURS</p></div><i class="sec-head__line"></i></div>
+      <div class="sbento">
+        <div class="ticket glass rv">
+          <span class="holo" aria-hidden="true"></span>
+          <div class="ticket__head mono"><span>ACCESS PASS // NEXT OPEN</span><span>MUTADOLL</span></div>
+          <p class="ticket__date grad-text" id="t-date">11.25<small>WED</small></p>
+          <p class="ticket__time">22:00 — 23:15 JST</p>
+          <div class="count" aria-live="polite">
+            <div><b id="cd-d">0</b><span>DAYS</span></div><div><b id="cd-h">00</b><span>HOURS</span></div><div><b id="cd-m">00</b><span>MIN</span></div><div><b id="cd-s">00</b><span>SEC</span></div>
+          </div>
+          <p class="ticket__note" id="t-note"><strong>22:00</strong> になったらインスタンスリーダーへJOIN！<br>インスタンスリーダーは公式Xにて発表されます。</p>
+          <div class="ticket__code mono" aria-hidden="true"><i></i><span>MD-PASS-0087</span></div>
+        </div>
+        <div class="bcard glass b-upcoming rv"><p class="bcard__label mono"><span>UPCOMING</span><b>これからのご帰宅日</b></p><ul class="upcoming" id="upcoming"></ul></div>
+        <div class="bcard glass b-spec rv"><p class="bcard__label mono"><span>INFORMATION</span><b>営業のご案内</b></p>
+          <dl class="spec">
+            <div><dt>DAY</dt><dd>第2・第4水曜日（一部特別営業の場合あり）</dd></div>
+            <div><dt>TIME</dt><dd><span class="num">22:00 – 23:15</span>（日本時間）／ご滞在は最後までお願いしております</dd></div>
+            <div><dt>WORLD</dt><dd>MUTADOLL 本店</dd></div>
+            <div><dt>DEVICE</dt><dd>PCVR・デスクトップ（Android からはご参加いただけません）</dd></div>
+            <div><dt>INSTANCE</dt><dd>friend（インスタンスリーダーへ事前申請必須）</dd></div>
+          </dl>
+        </div>
+        <div class="bcard glass b-step rv"><h3>インスタンスリーダー<wbr>フレンド申請</h3><p>インスタンスリーダーは公式Xにて発表されます</p></div>
+        <div class="bcard glass b-step rv"><h3>入店</h3><p>22時になったらインスタンスリーダーへJOIN！</p></div>
+        <div class="bcard glass b-step rv"><h3>メイドのお出迎え～お給仕</h3><p>可愛いメイドさんがご主人様・お嬢様をお出迎え♡<br>お給仕させていただきます！</p></div>
+        <div class="bcard glass b-step rv"><h3>お出かけ</h3><p>1時間ほどでお見送り。<br>最後にメイドさんと出発の挨拶をしましょう！</p></div>
+      </div>
+      <div class="sec-more rv"><a class="btn" href="schedule.html"><span>CALENDAR</span><i>{{ARROW}}</i></a></div>
+    </div>
+  </section>
+
+  <!-- ===== GUIDELINES & FAQ ===== -->
+  <section class="guide" id="guide">
+    <div class="particles" data-p="guide"></div>
+    <div class="inner">
+      <div class="sec-head rv"><h2 class="sec-head__en grad-text">GUIDELINES</h2><div class="sec-head__side"><p class="sec-head__jp">おやくそく・よくある質問</p><p class="sec-head__code mono">// HOUSE_RULES</p></div><i class="sec-head__line"></i></div>
+      <div class="guide__grid">
+        <div class="rules">
+          <div class="rule glass rv" style="--c:var(--sky-d)"><h3>歓迎していること<span class="grad-text">OK</span></h3><ul><li>おひとりさまでのご帰宅</li><li>ワールド内での写真撮影（迷惑になる撮影方法にはご配慮ください）</li><li>Xでの感想投稿（#MUTADOLL をつけていただけると嬉しいです）</li></ul></div>
+          <div class="rule glass rv" style="--c:var(--pink-d)"><h3>ご遠慮いただくこと<span class="grad-text">NG</span></h3><ul><li>メイドやほかのご主人様への接触・近すぎる距離</li><li>大音量のアバターギミックやパーティクル</li><li>メイドの個人情報や中の人の詮索</li><li>録画・録音（配信は要相談）</li></ul></div>
+        </div>
+        <div class="faq" id="faq">
+          <p class="faq__label rv"><b class="grad-text">FAQ</b><span>よくある質問</span></p>
+          <div class="faq__list">
+            <details class="rv"><summary>デスクトップやAndroidからも参加できますか？<i></i></summary><p class="a">MUTADOLLはPCVR・デスクトップ限定のイベントです。デスクトップもしくはPCVRでのご帰宅をお願いしています。</p></details>
+            <details class="rv"><summary>VRChatを始めたばかりでも大丈夫ですか？<i></i></summary><p class="a">はい。VRChatを始めたばかりの方・イベント初心者の方も歓迎です！</p></details>
+            <details class="rv"><summary>声を出さずに参加できますか？<i></i></summary><p class="a">MUTADOLLでは、声を発した会話ができることが必須となります。</p></details>
+            <details class="rv"><summary>メイドとしてお給仕してみたいです。<i></i></summary><p class="a">キャストご希望の方はXのDMにてご応募ください。</p></details>
+          </div>
+        </div>
+      </div>
+      <div class="sec-more rv"><a class="btn" href="guidelines.html"><span>GUIDELINES</span><i>{{ARROW}}</i></a><a class="btn" href="faq.html"><span>ALL FAQ</span><i>{{ARROW}}</i></a></div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section class="group" id="group">
+    <div class="particles" data-p="group"></div>
+    <div class="inner">
+      <div class="sec-head rv"><h2 class="sec-head__en grad-text">CONTACT</h2><div class="sec-head__side"><p class="sec-head__jp">グループ・お問い合わせ</p><p class="sec-head__code mono">// JOIN_US</p></div><i class="sec-head__line"></i></div>
+      <a class="group__banner rv" href="https://vrc.group/2024.4190" target="_blank" rel="noopener">
+        <img class="group__chara" src="img/chibi.webp" alt="" width="900" height="1089" loading="lazy">
+        <p class="group__small mono">VRChat GROUP</p>
+        <p class="group__logo">MUTADOLL</p>
+        <p class="group__copy">Groupに入るとイベント情報が届きます。</p>
+        <span class="group__cta">VRChatグループに参加する<i>{{ARROW}}</i></span>
+      </a>
+      <div class="followlinks rv">
+        <div class="follow glass"><span class="f-ic" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#i-x"/></svg></span><div><p>最新情報・出勤表・ご質問</p><code id="x-id">@MUTADOLL</code></div><span class="f-btns"><button type="button" data-copy="x-id">コピー</button><a class="f-btn" href="https://x.com/MUTADOLL" target="_blank" rel="noopener">フォロー</a></span></div>
+        <div class="follow glass"><span class="f-ic" aria-hidden="true">#</span><div><p>感想はハッシュタグをつけて</p><code id="x-tag">#MUTADOLL</code></div><span class="f-btns"><button type="button" data-copy="x-tag">コピー</button></span></div>
+      </div>
+      <div class="sec-more rv"><a class="btn" href="contact.html"><span>CONTACT</span><i>{{ARROW}}</i></a></div>
+    </div>
+  </section>

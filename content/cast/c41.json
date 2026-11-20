@@ -1,0 +1,19 @@
+{
+  "name": "エレディアン",
+  "show": true,
+  "image": "/uploads/cast/c41.webp",
+  "gen": 4,
+  "roles": [
+    "メイド"
+  ],
+  "card": "エレディアン",
+  "catch": "銀河を焦がす赤き流星☆お姉さん悪魔メイド",
+  "bday": "12月25日",
+  "from": "ｾｸﾀｰ-θ・EZOII",
+  "blood": "不明",
+  "likes": "ロボ",
+  "skill": "お絵描き・変な踊り",
+  "color": "#efc8c9",
+  "color2": "#e1666a",
+  "order": 150
+}

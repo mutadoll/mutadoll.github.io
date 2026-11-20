@@ -1,0 +1,19 @@
+{
+  "name": "マリア",
+  "show": true,
+  "image": "/uploads/cast/c46.webp",
+  "gen": 2,
+  "roles": [
+    "プレミアムメイド"
+  ],
+  "card": "マリア",
+  "catch": "変幻自在！トリックスターメイド",
+  "bday": "10月29日",
+  "from": "モニターの中",
+  "blood": "B型",
+  "likes": "ねること！改変！",
+  "skill": "おえかき",
+  "color": "#ccddeb",
+  "color2": "#71a9d6",
+  "order": 80
+}
