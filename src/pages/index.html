@@ -34,10 +34,14 @@
         <span class="pcvr">PCVR / DESKTOP</span>
         <span class="hud-clock">JST <em id="jst-clock">--:--:--</em></span>
       </div>
-      <button class="hero__book" type="button" id="open-about" data-open-about aria-haspopup="dialog" aria-label="はじめての方へ（ご帰宅ガイドを開く）">
-        <span class="hb__bar" aria-hidden="true"><span class="os-dots"><i></i><i></i><i></i></span>MEMBERSHIP.exe</span>
-        <span class="hb__slot" aria-hidden="true"><span class="mship" aria-hidden="true"><span class="mship__holo"></span><span class="mship__top"><img src="img/logo.webp" alt="" width="960" height="239"><em>MEMBERSHIP CARD</em></span><span class="mship__chip"></span><span class="mship__no">MD ♡ 2026 0001</span><span class="mship__bottom"><span class="mship__name"><small>MEMBER</small>ご主人様・お嬢様</span><span class="mship__guide">GUIDE<i></i></span></span></span></span>
-        <span class="hb__cta">はじめてのご主人様へ<b>ひらく ▶</b></span>
+      <div class="hero__dlg" id="hero-dlg" role="group" aria-label="MUTADOLL_OS からのお知らせ">
+        <div class="dlg__bar"><span class="os-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="dlg__title">MUTADOLL_OS</span><button class="dlg__x" type="button" data-dlg-close aria-label="閉じる（デスクトップにしまう）">×</button></div>
+        <div class="dlg__body"><span class="dlg__icon" aria-hidden="true"></span><p><b>はじめてのご帰宅ですか？</b><span>MUTADOLLのことと、ご帰宅までの流れをご案内します。</span></p></div>
+        <div class="dlg__btns"><button class="dlg__btn --yes" type="button" id="open-about" data-open-about aria-haspopup="dialog">はい<i aria-hidden="true">▶</i></button><button class="dlg__btn" type="button" data-dlg-close>あとで</button></div>
+      </div>
+      <button class="hero__icon" type="button" id="hero-icon" data-open-about aria-haspopup="dialog" aria-label="はじめに.txt（ご帰宅ガイドを開く）" hidden>
+        <svg viewBox="0 0 32 40" aria-hidden="true"><path d="M3 2h19l8 8v27H3z" fill="#fff" stroke="#2e2a3a" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 2v8h8" fill="#ffd8ea" stroke="#2e2a3a" stroke-width="2.2" stroke-linejoin="round"/><path d="M8 15h16M8 20h16M8 25h9" stroke="#b9a3f0" stroke-width="2.2"/><path d="M19 27h2v1h-2zM22 27h2v1h-2zM18 28h7v2h-7zM19 30h5v1h-5zM20 31h3v1h-3zM21 32h1v1h-1z" fill="#f472a8" shape-rendering="crispEdges"/></svg>
+        <span>はじめに.txt</span>
       </button>
     </div>
   </section>

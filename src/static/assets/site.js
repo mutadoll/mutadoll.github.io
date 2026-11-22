@@ -491,6 +491,23 @@ document.documentElement.classList.add("js");
     });
   }
 
+  /* ---------- トップ：はじめてのご主人様へ（OSのダイアログ → 閉じるとデスクトップの「はじめに.txt」） ---------- */
+  var dlg = $("hero-dlg"), dIcon = $("hero-icon");
+  if (dlg && dIcon) {
+    var ss = function (k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } };
+    var toIcon = function (focusIcon) {
+      if (dlg.hidden) return;
+      ss("md-dlg", "1"); dlg.classList.add("is-closing");
+      setTimeout(function () { dlg.hidden = true; dIcon.hidden = false; dIcon.classList.add("is-new"); if (focusIcon) dIcon.focus(); }, reduce ? 0 : 360);
+    };
+    if (ss("md-dlg")) { dlg.hidden = true; dIcon.hidden = false; }
+    dlg.querySelectorAll("[data-dlg-close]").forEach(function (b) { b.addEventListener("click", function () { toIcon(true); }); });
+    // 「はい」でガイドを開き、ガイドを閉じたらダイアログはアイコンにしまう
+    var guide = $("modal"), wantIcon = false;
+    dlg.querySelector("[data-open-about]").addEventListener("click", function () { wantIcon = true; });
+    if (guide && "MutationObserver" in window) new MutationObserver(function () { if (wantIcon && guide.hidden) { wantIcon = false; toIcon(true); } }).observe(guide, { attributes: true, attributeFilter: ["hidden"] });
+  }
+
   /* ---------- はじめてのご帰宅ガイド（モーダル） ---------- */
   var modal = $("modal"), lastFocus;
   function closeModal() { if (!modal || modal.hidden) return; modal.hidden = true; if (lastFocus) lastFocus.focus(); }
@@ -612,6 +629,7 @@ document.documentElement.classList.add("js");
       var em = document.querySelector(".mship__top em"), no = document.querySelector(".mship__no");
       if (em) em.textContent = isVip() ? "VIP MEMBER" : "MEMBERSHIP CARD";
       if (no) no.textContent = isVip() ? "VIP ♡ 2026 0008" : "MD ♡ 2026 0001";
+      var dt = document.querySelector(".dlg__title"); if (dt) dt.textContent = isVip() ? "MUTADOLL_OS — VIP MEMBER ♡" : "MUTADOLL_OS";
     }
     function placeHeart() {
       var sp = SPOTS.filter(function (p) { return p.page === page; })[0];

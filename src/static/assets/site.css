@@ -2331,3 +2331,60 @@ body { font-family: var(--f-jp); }
 .hero__title .fit.--hello { align-self: flex-start; }
 .hero__title .fit.is-erasing { animation: typeOut var(--ed, .4s) steps(var(--n, 12), end) both; }
 @keyframes typeOut { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 100% 0 0); } }
+
+/* =====================================================================
+   はじめてのご主人様へ：OSのダイアログ ／ 閉じるとデスクトップのアイコン「はじめに.txt」
+   ===================================================================== */
+.hero__dlg { position: absolute; z-index: 9; right: calc(110 * var(--u) + 26rem); bottom: 70rem; width: 340rem; border: 2px solid var(--ink); border-radius: 14rem; overflow: hidden; background: #fff; box-shadow: 7rem 7rem 0 var(--hard); }
+.hero__dlg[hidden] { display: none; }
+.js .hero__dlg { opacity: 0; scale: .3; }
+.is-ready .hero__dlg { animation: osPop .45s steps(3) 3.9s both; }
+.hero__dlg.is-closing { animation: osClose .36s steps(3) both; }
+@keyframes osClose { from { opacity: 1; scale: 1; } to { opacity: 0; scale: .2; translate: 0 30rem; } }
+.dlg__bar { display: flex; align-items: center; gap: 9rem; height: 34rem; padding: 0 6rem 0 11rem; background: linear-gradient(90deg, #ffd8ea, #ebdfff 55%, #d6edff); border-bottom: 2px solid var(--ink);
+  font-family: var(--f-en); font-weight: 700; font-size: 13rem; letter-spacing: .06em; color: var(--ink); }
+.dlg__bar .os-dots i { width: 10rem; height: 10rem; }
+.dlg__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dlg__x { display: grid; place-items: center; width: 24rem; height: 24rem; border: 2px solid var(--ink); border-radius: 6rem; background: #fff; font-size: 14rem; line-height: 1; color: var(--ink); }
+.dlg__x:hover { background: var(--pink-d); color: #fff; }
+.dlg__body { display: flex; align-items: flex-start; gap: 14rem; padding: 16rem 16rem 6rem; }
+.dlg__icon { flex: none; display: grid; place-items: center; width: 46rem; height: 46rem; border: 2px solid var(--ink); border-radius: 12rem; background: var(--grad); box-shadow: 3rem 3rem 0 var(--hard); }
+.dlg__icon::before { content: ""; width: 26rem; height: 22rem; background: #fff; -webkit-mask: var(--px-heart) center / 100% 100% no-repeat; mask: var(--px-heart) center / 100% 100% no-repeat; animation: pxBeat 1.2s steps(1) infinite; }
+@keyframes pxBeat { 0%, 60%, 100% { scale: 1; } 70% { scale: 1.25; } 80% { scale: .9; } 90% { scale: 1.1; } }
+.dlg__body p { margin: 0; display: grid; gap: 4rem; }
+.dlg__body b { font-weight: 700; font-size: 17rem; line-height: 1.4; color: var(--ink); }
+.dlg__body span { font-size: 12.5rem; line-height: 1.7; color: var(--ink-2); }
+.dlg__btns { display: flex; justify-content: flex-end; gap: 10rem; padding: 8rem 14rem 14rem; }
+.dlg__btn { display: inline-flex; align-items: center; gap: 8rem; height: 34rem; padding: 0 16rem; border: 2px solid var(--ink); border-radius: 9rem; background: #fff; box-shadow: 3rem 3rem 0 var(--hard);
+  font-weight: 700; font-size: 13rem; color: var(--ink); transition: translate .2s steps(2), box-shadow .2s steps(2); }
+.dlg__btn:hover { translate: 2rem 2rem; box-shadow: 1rem 1rem 0 var(--hard); }
+.dlg__btn.--yes { background: var(--ink); color: #fff; box-shadow: 3rem 3rem 0 var(--hard-pink); }
+.dlg__btn.--yes:hover { box-shadow: 1rem 1rem 0 var(--hard-pink); }
+.dlg__btn.--yes i { font-style: normal; font-size: 10rem; color: var(--pink); }
+.dlg__btn.--yes:hover i { animation: pxNudge .6s steps(2) infinite; }
+.dlg__btn:focus-visible, .dlg__x:focus-visible, .hero__icon:focus-visible { outline: 3px solid var(--sky-d); outline-offset: 2px; }
+.is-vip .dlg__bar { background: linear-gradient(90deg, #ffe7a3, #ffd36e 50%, #ffc0d9); }
+
+/* デスクトップのアイコン「はじめに.txt」 */
+.hero__icon { position: absolute; z-index: 9; right: calc(110 * var(--u) + 30rem); bottom: 72rem; display: grid; justify-items: center; gap: 6rem; width: 104rem; padding: 6rem 4rem; border-radius: 10rem; text-align: center; }
+.hero__icon[hidden] { display: none; }
+.hero__icon svg { width: 50rem; height: 62rem; filter: drop-shadow(3rem 3rem 0 rgba(165,143,240,.45)); }
+.hero__icon span { padding: 2rem 7rem; border-radius: 4rem; background: rgba(255,255,255,.88); font-family: var(--f-en); font-weight: 700; font-size: 13rem; letter-spacing: .04em; color: var(--ink); white-space: nowrap; }
+.hero__icon:hover span, .hero__icon:focus-visible span { background: var(--pink-d); color: #fff; }
+.hero__icon:hover svg { animation: pxHop .6s steps(2) infinite; }
+.hero__icon.is-new { animation: osPop .4s steps(3) both; }
+
+@media (max-width: 768px) {
+  .hero__dlg { right: calc(14 * var(--u) + 6rem); bottom: 40rem; width: 236rem; border-radius: 10rem; box-shadow: 4rem 4rem 0 var(--hard); }
+  .dlg__bar { height: 26rem; gap: 6rem; padding: 0 4rem 0 8rem; font-size: 10rem; }
+  .dlg__bar .os-dots { gap: 3rem; } .dlg__bar .os-dots i { width: 8rem; height: 8rem; box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .dlg__x { width: 18rem; height: 18rem; border-radius: 5rem; font-size: 11rem; }
+  .dlg__body { gap: 9rem; padding: 10rem 10rem 4rem; }
+  .dlg__icon { width: 32rem; height: 32rem; border-radius: 9rem; } .dlg__icon::before { width: 18rem; height: 15rem; }
+  .dlg__body b { font-size: 13rem; } .dlg__body span { font-size: 10rem; line-height: 1.6; }
+  .dlg__btns { gap: 8rem; padding: 6rem 10rem 10rem; }
+  .dlg__btn { height: 28rem; padding: 0 11rem; font-size: 11rem; }
+  .hero__icon { right: calc(14 * var(--u) + 6rem); bottom: 40rem; width: 80rem; }
+  .hero__icon svg { width: 36rem; height: 45rem; } .hero__icon span { font-size: 10rem; }
+}
+@media (prefers-reduced-motion: reduce) { .js .hero__dlg { opacity: 1; scale: 1; } .hero__dlg, .hero__dlg.is-closing, .dlg__icon::before, .hero__icon.is-new { animation: none; } }
