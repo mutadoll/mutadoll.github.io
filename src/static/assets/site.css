@@ -2105,3 +2105,93 @@ body { font-family: var(--f-jp); }
 @media (prefers-reduced-motion: reduce) { .sec-head__jp::after { animation: none; } }
 /* ABOUT 背景の大きな文字：ピクセルの線はガタつくので、まるい書体のふち文字に */
 .about__bg { font-family: var(--f-disp); font-weight: 900; letter-spacing: .02em; }
+
+/* =====================================================================
+   HERO：MUTADOLL_OS のウィンドウ
+   - パネル上部にタイトルバー（●●● welcome.exe・写真の切り替え・時計）。浮いたラベルと四すみのカギはなし
+   - 大きな文字は1文字ずつタイプ ／ 写真はピクセルのハートが広がって切り替わる
+   - メンバーズカードは右下の「MEMBERSHIP.exe」（カードが発行口から出てくる）
+   - CONTACT はヘッダーの呼び鈴に
+   ===================================================================== */
+.board { border: 2px solid var(--ink); border-bottom: 0; border-radius: 22rem 22rem 0 0; box-shadow: 8rem 8rem 0 var(--hard); }
+.hero__hud, .hud-corners, .scan, .hero__glitch, .hero__scanline, .hero__bubble, .hero__open { display: none !important; }
+.hero__title { animation: none; }
+.os-dots { display: inline-flex; gap: 6rem; flex: none; }
+.os-dots i { width: 12rem; height: 12rem; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--ink); }
+.os-dots i:nth-child(1) { background: #ff9cc6; } .os-dots i:nth-child(2) { background: #ffe07a; } .os-dots i:nth-child(3) { background: #8fd3ff; }
+.board__bar { position: absolute; z-index: 7; left: 0; right: 0; top: 0; height: 46rem; display: flex; align-items: center; gap: 14rem; padding: 0 16rem;
+  background: linear-gradient(90deg, #ffd8ea, #ebdfff 50%, #d6edff); border-bottom: 2px solid var(--ink); font-family: var(--f-en); font-size: 13rem; color: var(--ink); white-space: nowrap; }
+.bb__name { letter-spacing: .06em; }
+.board__bar .pcvr { padding: 2rem 9rem; border: 1.5px solid var(--ink); border-radius: 6rem; background: #fff; color: var(--ink); font-size: 11rem; letter-spacing: .1em; }
+.bb__sp { flex: 1; }
+.board__bar .hero__pager { position: static; display: flex; align-items: center; gap: 8rem; padding: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.board__bar .hero__pager .arr { width: 28rem; height: 28rem; border: 2px solid var(--ink); border-radius: 8rem; background: #fff; color: var(--ink); box-shadow: 2rem 2rem 0 var(--hard); }
+.board__bar .hero__pager .arr:hover { background: var(--ink); color: #fff; }
+.board__bar .hero__pager .arr svg { width: 11rem; height: 11rem; }
+.board__bar .hero__pager__no { font-family: var(--f-en); font-size: 12rem; color: var(--ink-2); }
+.board__bar .hero__pager__no b { font-family: var(--f-en); font-weight: 400; font-size: 15rem; color: var(--ink); }
+.board__bar .hero__pager__dots { gap: 4rem; }
+.board__bar .hero__pager__dots button, .board__bar .hero__pager__dots button[aria-current="true"] { width: 8rem; height: 8rem; border-radius: 0; background: rgba(46,42,58,.18); }
+.board__bar .hero__pager__dots button[aria-current="true"] { background: var(--pink-d); }
+/* 写真の切り替えまでの時間：タイトルバーの下の読み込みバー */
+.board__bar .hero__pager__bar { left: 0; right: 0; bottom: -2px; height: 3rem; border-radius: 0; background: transparent; }
+.hud-clock { font-family: var(--f-en); font-size: 13rem; letter-spacing: .06em; }
+.hud-clock em { font-style: normal; color: var(--ink); font-variant-numeric: tabular-nums; }
+.hero__title { top: calc(66 * var(--u) + 30rem); }
+
+/* 大きな文字：タイプ ＋ 点滅カーソル */
+.js .hero__title .fit:not(.is-typing):not(.is-typed) { clip-path: inset(0 100% 0 0); }
+.hero__title .fit.is-typing { animation: typeIn var(--td, .9s) steps(var(--n, 12), end) both; }
+@keyframes typeIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.hero__cur { display: inline-block; width: .38em; height: .74em; margin-left: .08em; vertical-align: -.02em; background: var(--pink-d); animation: blink 1s steps(1) infinite; }
+
+/* 写真の切り替え：ピクセルのハートが広がる */
+.hero__slides img.is-in { animation: heartIris 1.05s steps(14) both;
+  -webkit-mask-image: var(--px-heart); mask-image: var(--px-heart); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: 50% 42%; mask-position: 50% 42%; }
+@keyframes heartIris { from { -webkit-mask-size: 0% auto; mask-size: 0% auto; } to { -webkit-mask-size: 650% auto; mask-size: 650% auto; } }
+
+/* メンバーズカード：右下の小さなウィンドウ（カード発行機） */
+.hero__book { left: auto; right: calc(36 * var(--u)); bottom: 22rem; width: 300rem; display: block; padding: 0; border: 2px solid var(--ink); border-radius: 14rem; overflow: hidden; background: #fff; text-align: left;
+  box-shadow: 6rem 6rem 0 var(--hard); animation: osPop .45s steps(3) 1.2s both; transition: translate .2s steps(2), box-shadow .2s steps(2); }
+.hero__book:hover { translate: -2rem -2rem; box-shadow: 8rem 8rem 0 var(--hard); }
+@keyframes osPop { 0% { opacity: 0; scale: .3; } 60% { opacity: 1; scale: 1.06; } 100% { opacity: 1; scale: 1; } }
+.hb__bar { display: flex; align-items: center; gap: 9rem; height: 32rem; padding: 0 10rem; background: linear-gradient(90deg, #ffd8ea, #ebdfff); border-bottom: 2px solid var(--ink); font-family: var(--f-en); font-size: 12rem; letter-spacing: .06em; color: var(--ink); }
+.hb__bar .os-dots i { width: 10rem; height: 10rem; }
+.hb__slot { position: relative; display: block; height: 186rem; overflow: hidden; background: radial-gradient(circle at 1px 1px, rgba(165,143,240,.25) 1px, transparent 1.5px) 0 0 / 10rem 10rem, #fbf8ff; }
+.hb__slot::after { content: ""; position: absolute; z-index: 3; left: 12rem; right: 12rem; bottom: 8rem; height: 11rem; border-radius: 6rem; background: var(--ink); box-shadow: inset 0 3rem 0 rgba(255,255,255,.18), 0 2rem 0 #fff; }
+.hero__book .mship { position: absolute; left: 50%; bottom: 14rem; margin: 0; rotate: 0deg; translate: -50% 0; box-shadow: 0 0 0 3rem rgba(255,255,255,.8), 0 14rem 24rem -14rem rgba(46,42,58,.5); animation: cardIssue 1.2s steps(9) 1.6s both; }
+@keyframes cardIssue { from { transform: translateY(108%); } to { transform: translateY(0); } }
+.hero__book:hover .mship { rotate: 0deg; translate: -50% -8rem; }
+.hb__cta { display: flex; align-items: center; justify-content: space-between; gap: 8rem; padding: 9rem 12rem 10rem; border-top: 2px dashed rgba(46,42,58,.25); font-weight: 800; font-size: 13rem; color: var(--ink); }
+.hb__cta b { font-family: var(--f-en); font-weight: 400; font-size: 12rem; letter-spacing: .1em; color: var(--pink-d); }
+.hero__book:hover .hb__cta b { animation: pxNudge .6s steps(2) infinite; }
+
+/* ヘッダーの呼び鈴（お問い合わせ） */
+.h-bell { flex: none; display: grid; place-items: center; width: 50rem; height: 50rem; border-radius: 50%; color: var(--ink); }
+.h-bell svg { width: 26rem; height: 26rem; transform-origin: 50% 85%; }
+.h-bell:hover svg, .h-bell:focus-visible svg { animation: bellRing .7s ease-in-out; }
+@keyframes bellRing { 15% { rotate: 16deg; } 30% { rotate: -14deg; } 45% { rotate: 10deg; } 60% { rotate: -7deg; } 75% { rotate: 3deg; } 100% { rotate: 0deg; } }
+
+@media (max-width: 768px) {
+  .board { border-radius: 16rem 16rem 0 0; box-shadow: 5rem 5rem 0 var(--hard); }
+  .board__bar { height: 34rem; gap: 8rem; padding: 0 10rem; font-size: 10rem; }
+  .board__bar .os-dots i { width: 9rem; height: 9rem; }
+  .bb__name, .board__bar .pcvr, .board__bar .hero__pager__dots { display: none; }
+  .board__bar .hero__pager .arr { width: 22rem; height: 22rem; border-radius: 6rem; }
+  .board__bar .hero__pager__no b { font-size: 12rem; }
+  .hud-clock { font-size: 10rem; }
+  .hero__title { top: calc(50 * var(--u) + 22rem); }
+  .hero__book { right: calc(6 * var(--u)); bottom: 12rem; width: 164rem; border-radius: 10rem; box-shadow: 4rem 4rem 0 var(--hard); }
+  .hb__bar { height: 22rem; gap: 6rem; padding: 0 7rem; font-size: 8rem; }
+  .hb__bar .os-dots { gap: 3rem; } .hb__bar .os-dots i { width: 7rem; height: 7rem; box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .hb__slot { height: 104rem; }
+  .hb__slot::after { left: 8rem; right: 8rem; bottom: 5rem; height: 7rem; }
+  .hero__book .mship { bottom: 9rem; }
+  .hb__cta { padding: 5rem 8rem 6rem; font-size: 8.5rem; }
+  .hb__cta b { font-size: 8rem; }
+  .h-bell { width: 40rem; height: 40rem; } .h-bell svg { width: 22rem; height: 22rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hero__book, .hero__book .mship, .hero__cur { animation: none; } }
+/* ヘッダー右のボタンはつぶれないように（スマホは呼び鈴・X・メニューが並ぶ） */
+.menu-btn, .h-x, .h-bell { flex: none; }
+@media (max-width: 768px) { .h-logo { flex: 0 1 auto; min-width: 0; } .h-logo img { max-width: 100%; height: auto; max-height: 44rem; } }

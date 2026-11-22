@@ -104,6 +104,18 @@ document.documentElement.classList.add("js");
   }
 
   /* ---------- トップの大きな文字を幅いっぱいに ---------- */
+  /* トップの大きな文字：MUTADOLL_OS のように1文字ずつタイプされる（最後にカーソル） */
+  function typeTitle() {
+    document.querySelectorAll("#hero-title .lines").forEach(function (lines) {
+      var t = 0;
+      lines.querySelectorAll(":scope > .fit").forEach(function (f) {
+        if (reduce) { f.classList.add("is-typed"); return; }
+        var n = Math.max(4, f.textContent.length), d = n * 62;
+        f.style.setProperty("--n", n); f.style.setProperty("--td", d + "ms"); f.style.animationDelay = t + "ms";
+        f.classList.remove("is-typing"); void f.offsetWidth; f.classList.add("is-typing"); t += d + 90;
+      });
+    });
+  }
   function fitTitle() {
     if (scrBusy > 0) { fitPending = true; return; }
     document.querySelectorAll("#hero-title .lines").forEach(function (lines) {
@@ -148,7 +160,7 @@ document.documentElement.classList.add("js");
     });
   });
 
-  /* ---------- トップ：写真の切り替え（文字は固定、写真だけがグリッチで切り替わる） ---------- */
+  /* ---------- トップ：写真の切り替え（文字は固定、写真はハートが広がって切り替わる） ---------- */
   var slideBox = $("hero-slides");
   if (slideBox) {
     var slides = slideBox.querySelectorAll("img"), si = 0, sTimer, SINT = 5200, dotBox = $("hero-dots"), figEl = $("hero-fig");
@@ -987,11 +999,11 @@ document.documentElement.classList.add("js");
       var lp = t.querySelector(".lines--pc"), ls = t.querySelector(".lines--sp");
       if (on) {
         titleBackup = titleBackup || { pc: lp.innerHTML, sp: ls.innerHTML, label: t.getAttribute("aria-label") };
-        lp.innerHTML = '<span class="fit">OKAERI<span class="g">NASAIMASE</span></span>';
-        ls.innerHTML = '<span class="fit">OKAERI</span><span class="fit"><span class="g">NASAIMASE</span></span>';
+        lp.innerHTML = '<span class="fit">OKAERI<span class="g">NASAIMASE</span><i class="hero__cur"></i></span>';
+        ls.innerHTML = '<span class="fit">OKAERI</span><span class="fit"><span class="g">NASAIMASE</span><i class="hero__cur"></i></span>';
         t.setAttribute("aria-label", "おかえりなさいませ（ただいま営業中）");
       } else if (titleBackup) { lp.innerHTML = titleBackup.pc; ls.innerHTML = titleBackup.sp; t.setAttribute("aria-label", titleBackup.label); }
-      fitTitle(); t.querySelectorAll(".fit").forEach(function (f, k) { setTimeout(function () { scramble(f, 700); }, k * 130); });
+      fitTitle(); typeTitle();
     }
     onReady(checkOpen); setInterval(checkOpen, 30000);
 
@@ -1076,7 +1088,7 @@ document.documentElement.classList.add("js");
     fitTitle();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
     var rt; addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fitTitle, 120); });
-    onReady(function () { setTimeout(function () { document.querySelectorAll("#hero-title .fit").forEach(function (f, k) { setTimeout(function () { scramble(f, 700); }, (k % 4) * 130); }); }, 250); });
+    onReady(function () { setTimeout(typeTitle, 250); });
   }
   var ph = document.querySelector(".phead__en");
   if (ph) setTimeout(function () { scramble(ph, 800); }, 150);

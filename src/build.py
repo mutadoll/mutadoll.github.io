@@ -310,13 +310,10 @@ def header(cur):
     <ul class="glass">{lis}</ul>
   </nav>
   <a class="h-join" href="https://vrc.group/2024.4190" target="_blank" rel="noopener">JOIN GROUP<i>{ARROW}</i></a>
+  <a class="h-bell glass" href="contact.html" aria-label="お問い合わせ（呼び鈴）"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 24h22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 21.5a9 9 0 0 1 18 0z" fill="#ff9cc6" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 12.5V9.5M13 9.5h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M11.2 18.6a5.4 5.4 0 0 1 3.2-3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></a>
   <a class="h-x glass" href="https://x.com/MUTADOLL" target="_blank" rel="noopener" aria-label="MUTADOLLのX（新しいタブで開く）"><svg viewBox="0 0 512 512" aria-hidden="true"><use href="#i-x"/></svg></a>
   <button class="menu-btn" id="menu-btn" type="button" aria-label="メニューを開く" aria-expanded="false" aria-controls="sp-menu"><span></span><span></span></button>
 </header>
-<a class="contact-badge" href="contact.html" aria-label="お問い合わせ">
-  <svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ring-c" d="M50 50m-38 0a38 38 0 1 1 76 0a38 38 0 1 1-76 0"/></defs><text><textPath href="#ring-c">CONTACT · CONTACT · CONTACT ·</textPath></text></svg>
-  <b aria-hidden="true"></b>
-</a>
 <nav class="sp-menu" id="sp-menu" aria-label="メニュー">
   <a class="sp-link" href="index.html">TOP<small>トップ</small></a>
 {sp}
