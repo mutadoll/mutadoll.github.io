@@ -1091,12 +1091,40 @@ document.documentElement.classList.add("js");
     document.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
   } else document.querySelectorAll(".rv").forEach(function (el) { el.classList.add("is-in"); });
 
+  /* ---------- 画面遷移：サイト内のページへ移るとき、ロード画面と同じ色の帯で覆ってから移動する ----------
+     前のページから来たときは <head> のスクリプトが html に pt-arrive を付けて覆った状態で始まるので、ここで帯を抜く */
+  var pt = $("pt"), arrived = root.classList.contains("pt-arrive");
+  if (pt) {
+    if (arrived) {
+      var revealed = false, reveal = function () {
+        if (revealed) return; revealed = true;
+        pt.classList.add("is-reveal");
+        setTimeout(function () { root.classList.remove("pt-arrive"); pt.classList.remove("is-reveal"); }, 900);
+      };
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(reveal, 60); });
+      setTimeout(reveal, 500);
+    }
+    var leaving = false, samePage = function (u) { return u.pathname.replace(/index\.html$/, "") === location.pathname.replace(/index\.html$/, ""); };
+    document.addEventListener("click", function (e) {
+      if (reduce || leaving || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+      var url = new URL(a.href, location.href);
+      if (url.origin !== location.origin || samePage(url) || !/(\.html|\/)$/.test(url.pathname) || /\/admin\//.test(url.pathname)) return;
+      e.preventDefault(); leaving = true;
+      root.classList.remove("pt-arrive"); pt.classList.remove("is-reveal"); pt.classList.add("is-cover");
+      try { sessionStorage.setItem("md-pt", "1"); } catch (err) {}
+      setTimeout(function () { location.href = url.href; }, 760);
+    });
+    /* 戻るボタンでこのページに戻ってきたとき（前の状態のまま表示される場合）は、覆いを外す */
+    addEventListener("pageshow", function (e) { if (e.persisted) { leaving = false; pt.classList.remove("is-cover", "is-reveal"); root.classList.remove("pt-arrive"); } });
+  }
+
   /* ---------- 起動演出（初回ロード） ---------- */
   var loader = $("loader");
-  if (!loader || reduce) { if (loader) loader.classList.add("is-gone"); setReady(); }
+  /* 起動演出は最初に開いたときだけ。サイト内の画面遷移でトップに来たときは、帯が抜ける演出だけにする */
+  if (!loader || reduce || arrived) { if (loader) loader.classList.add("is-gone"); if (arrived) setTimeout(setReady, 450); else setReady(); }
   else (function () {
-    var seen = false;
-    try { seen = sessionStorage.getItem("md-boot") === "1"; sessionStorage.setItem("md-boot", "1"); } catch (e) {}
     var hearts = $("ld-hearts"), cols = ["#ff9cc6", "#f472a8", "#8fd3ff", "#c9b3f5", "#ffc2dc"];
     for (var h = 0; h < 14; h++) {
       var hi = document.createElement("i");

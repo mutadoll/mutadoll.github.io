@@ -2218,3 +2218,50 @@ body { font-family: var(--f-jp); }
 .article__meta.nfile { display: flex; min-height: 0; padding: 0 0 18rem; gap: 18rem; border-bottom: 1px solid var(--hair); background: none; }
 .article__meta.nfile::before { display: none; }
 @media (max-width: 768px) { .article__meta.nfile { gap: 14rem; } .article__meta .nfile__type, .article__meta .nfile__date { font-size: 12rem; } }
+
+/* =====================================================================
+   画面遷移：ロード画面と同じ色の帯（ピンク → ラベンダー → 水色 → OSの色）が斜めに覆い、
+   次のページでは逆の順に抜けていく。覆っているあいだはロゴと NOW LOADING
+   ===================================================================== */
+.pt { position: fixed; inset: 0; z-index: 200; overflow: hidden; visibility: hidden; pointer-events: none; }
+.pt.is-cover, .pt-arrive .pt { visibility: visible; pointer-events: auto; }
+.pt__bands i { position: absolute; top: -20%; bottom: -20%; left: -100%; width: 300%; transform: translateX(-90%) skewX(-18deg); }
+.pt__bands i:nth-child(1) { background: linear-gradient(90deg, #ffb3d1, #ff8fc0); }
+.pt__bands i:nth-child(2) { background: linear-gradient(90deg, #e6c3f7, #d6a6f2); }
+.pt__bands i:nth-child(3) { background: linear-gradient(90deg, #b7e1ff, #7ccbff); }
+.pt__bands i:nth-child(4) { background:
+  linear-gradient(rgba(46,42,58,.06) 1px, transparent 1px) 0 0 / 48rem 48rem,
+  linear-gradient(90deg, rgba(46,42,58,.06) 1px, transparent 1px) 0 0 / 48rem 48rem,
+  linear-gradient(90deg, #ffe1ef 30%, #eee3ff 50%, #dcefff 70%); }
+.pt.is-cover .pt__bands i { animation: ptIn .6s cubic-bezier(.77, 0, .18, 1) both; }
+.pt.is-cover .pt__bands i:nth-child(2) { animation-delay: .06s; }
+.pt.is-cover .pt__bands i:nth-child(3) { animation-delay: .12s; }
+.pt.is-cover .pt__bands i:nth-child(4) { animation-delay: .18s; }
+.pt-arrive .pt__bands i { transform: translateX(0) skewX(-18deg); }
+.pt.is-reveal .pt__bands i { animation: ptOut .62s cubic-bezier(.77, 0, .18, 1) both; }
+.pt.is-reveal .pt__bands i:nth-child(3) { animation-delay: .06s; }
+.pt.is-reveal .pt__bands i:nth-child(2) { animation-delay: .12s; }
+.pt.is-reveal .pt__bands i:nth-child(1) { animation-delay: .18s; }
+@keyframes ptIn { from { transform: translateX(-90%) skewX(-18deg); } to { transform: translateX(0) skewX(-18deg); } }
+@keyframes ptOut { from { transform: translateX(0) skewX(-18deg); } to { transform: translateX(90%) skewX(-18deg); } }
+.pt__core { position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; justify-items: center; gap: 22rem; opacity: 0; }
+.pt__core img { display: block; width: 340rem; max-width: 70vw; height: auto; filter: drop-shadow(0 10rem 18rem rgba(143,130,220,.3)); }
+.pt__txt { display: flex; align-items: center; gap: 10rem; font-size: 13rem; letter-spacing: .24em; color: var(--ink); }
+.pt__txt i { width: 17rem; height: 15rem; background: var(--pink-d); -webkit-mask: var(--px-heart) center / 100% 100% no-repeat; mask: var(--px-heart) center / 100% 100% no-repeat; animation: pxHeartBeat .8s steps(1) infinite; }
+.pt__txt b { display: inline-flex; font-weight: inherit; }
+.pt__txt b span { animation: ptDot 1.2s steps(1) infinite; }
+.pt__txt b span:nth-child(2) { animation-delay: .2s; } .pt__txt b span:nth-child(3) { animation-delay: .4s; }
+@keyframes ptDot { 0%, 60%, 100% { opacity: 1; } 30% { opacity: 0; } }
+@keyframes pxHeartBeat { 0%, 100% { scale: 1; } 50% { scale: .8; } }
+.pt.is-cover .pt__core { animation: ptCoreIn .32s .5s steps(4) both; }
+.pt-arrive .pt__core { opacity: 1; }
+.pt.is-reveal .pt__core { animation: ptCoreOut .18s steps(3) both; }
+@keyframes ptCoreIn { from { opacity: 0; scale: .92; } to { opacity: 1; scale: 1; } }
+@keyframes ptCoreOut { from { opacity: 1; } to { opacity: 0; scale: 1.04; } }
+/* もしスクリプトが動かなくても、3秒たったら必ず消えるように */
+.pt-arrive .pt:not(.is-reveal) { animation: ptSafety 0s 3s forwards; }
+@keyframes ptSafety { to { visibility: hidden; pointer-events: none; } }
+@media (max-width: 768px) {
+  .pt__core img { width: 240rem; }
+  .pt__txt { font-size: 11rem; }
+}

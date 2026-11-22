@@ -267,6 +267,14 @@ BG = '''<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="cursor" id="cursor" aria-hidden="true"><i></i></div>
 <div class="grain" aria-hidden="true"></div>'''
 
+# 画面遷移：ロード画面と同じ色の帯が斜めに覆って、次のページで抜けていく（動きは site.js / site.css）
+PAGE_TRANSITION = '''<div class="pt" id="pt" aria-hidden="true">
+  <div class="pt__bands"><i></i><i></i><i></i><i></i></div>
+  <div class="pt__core"><img src="img/logo.webp" alt="" width="960" height="239"><p class="pt__txt mono"><i></i>NOW LOADING<b><span>.</span><span>.</span><span>.</span></b></p></div>
+</div>'''
+# 前のページから画面遷移で来たときは、最初の表示から帯で覆っておく（読み込み中にページが見えないように）
+PT_HEAD = '<script>try{if(sessionStorage.getItem("md-pt")){sessionStorage.removeItem("md-pt");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pt-arrive")}}catch(e){}</script>'
+
 LOADING = '''<div class="loader" id="loader" aria-hidden="true">
   <div class="loader__bg"><div class="loader__hearts" id="ld-hearts"></div></div>
   <div class="loader__ui">
@@ -483,10 +491,12 @@ def build_page(name, D):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{esc(title)}</title>
+{PT_HEAD}
 {head_meta(name, title, desc)}
 {FONTS}
 </head>
 <body{' class="is-home"' if name == "index" else ""}>
+{PAGE_TRANSITION}
 {SPRITE}
 
 {BG}
