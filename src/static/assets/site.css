@@ -1964,3 +1964,144 @@ html { font-size: min(max(calc(100vw / 1440), min(calc(100vw / 1200), 0.8333px))
   .hud, .hud::before, .particle.--heart { animation: none !important; }
   .hud.--txt { width: auto; }
 }
+
+/* =====================================================================
+   MUTADOLL オリジナルデザイン（ほかの公式サイトと似ないように）
+   - 文字：英語のラベル・数字はピクセル書体（DotGothic16）、日本語と見出しはまるい書体（M PLUS Rounded 1c）
+   - 見出し：日本語を大きく、英語は「ピクセルのタグ」
+   - カード・ボタン：MUTADOLL_OS の「ウィンドウ」と「レトロなボタン」（くっきりした影）
+   - ヒーロー下の帯：レースのリボン ／ TOPボタン：ピクセルの矢印
+   ===================================================================== */
+:root {
+  --f-en: "DotGothic16", "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", sans-serif;
+  --f-jp: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  --f-disp: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", sans-serif;
+  --hard: #dccff9; --hard-pink: #f9bcd8;
+  --px-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 6' shape-rendering='crispEdges'%3E%3Cpath d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z'/%3E%3C/svg%3E");
+  --px-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath d='M3 0h1v1H3zM2 1h3v1H2zM1 2h5v1H1zM0 3h7v1H0zM2 4h3v3H2z'/%3E%3C/svg%3E");
+}
+html { font-synthesis: none; }
+body { font-family: var(--f-jp); }
+
+/* ヒーローの大きな文字：まるい極太 */
+.fit { font-family: var(--f-disp); font-weight: 900; letter-spacing: .005em; line-height: 1; }
+
+/* ---------- メニュー・ヘッダーのボタン ---------- */
+.gnav a { font-family: var(--f-en); font-weight: 400; font-size: 16rem; letter-spacing: .08em; }
+.gnav a::after { height: 3rem; bottom: -9rem; background: repeating-linear-gradient(90deg, var(--pink-d) 0 6rem, transparent 6rem 9rem); }
+.h-join { height: 48rem; border: 2px solid var(--ink); border-radius: 14rem; font-family: var(--f-en); font-weight: 400; font-size: 15rem; letter-spacing: .1em; box-shadow: 4rem 4rem 0 var(--hard-pink); transition: translate .2s steps(2), box-shadow .2s steps(2); }
+.h-join:hover { translate: 2rem 2rem; box-shadow: 2rem 2rem 0 var(--hard-pink); }
+.h-join i { width: 32rem; height: 32rem; border-radius: 9rem; }
+
+/* ---------- セクションの見出し：ピクセルのタグ ＋ 大きな日本語 ---------- */
+.sec-head { display: grid; grid-template-columns: auto auto minmax(0, 1fr); grid-template-areas: "en code line" "jp jp jp"; align-items: center; column-gap: 14rem; row-gap: 12rem; }
+.sec-head__en, .phead__en { display: inline-flex; align-items: center; gap: 9rem; width: fit-content; margin: 0; padding: 7rem 14rem 7rem 11rem; border: 2px solid var(--ink); border-radius: 10rem; background: #fff;
+  box-shadow: 4rem 4rem 0 var(--hard); font-family: var(--f-en); font-weight: 400; font-size: 18rem; line-height: 1; letter-spacing: .14em; color: var(--ink); -webkit-text-fill-color: currentColor; filter: none; }
+.sec-head__en::before, .phead__en::before { content: ""; flex: none; width: 16rem; height: 14rem; background: var(--pink-d); -webkit-mask: var(--px-heart) center / 100% 100% no-repeat; mask: var(--px-heart) center / 100% 100% no-repeat; }
+.sec-head__en { grid-area: en; }
+.sec-head__code { grid-area: code; margin: 0; font-family: var(--f-en); font-size: 13rem; color: var(--ink-2); }
+.sec-head__line { grid-area: line; height: 4rem; margin: 0; background: repeating-linear-gradient(90deg, var(--pink) 0 8rem, transparent 8rem 14rem, var(--sky) 14rem 22rem, transparent 22rem 28rem); }
+.sec-head__jp, .phead__jp { margin: 0; font-family: var(--f-disp); font-weight: 900; line-height: 1.15; letter-spacing: .04em; text-wrap: balance;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(3rem 3rem 0 #fff) drop-shadow(0 10rem 18rem rgba(214,166,242,.35)); }
+.sec-head__jp { grid-area: jp; display: block; font-size: 64rem; }
+.sec-head__jp::after { content: ""; display: inline-block; width: 12rem; height: .8em; margin-left: 10rem; vertical-align: -.06em; background: var(--pink-d); animation: blink 1s steps(1) infinite; }
+
+/* ---------- 各ページの見出し ---------- */
+.phead__title { display: grid; justify-items: center; gap: 16rem; margin-top: 26rem; }
+.phead__en { font-size: 20rem; padding: 8rem 16rem 8rem 12rem; }
+.phead__jp { display: block; width: auto; font-size: 100rem; }
+.phead__jp::before, .phead__jp::after { content: none; }
+.phead__code { margin-top: 12rem; font-family: var(--f-en); font-size: 13rem; }
+
+/* ---------- 小見出し ---------- */
+.sub-h { align-items: center; gap: 14rem; }
+.sub-h b { padding: 6rem 12rem; border: 2px solid var(--ink); border-radius: 9rem; background: #fff; box-shadow: 3rem 3rem 0 var(--hard); font-family: var(--f-en); font-weight: 400; font-size: 15rem; line-height: 1; letter-spacing: .12em; color: var(--ink); }
+.sub-h span { font-family: var(--f-disp); font-weight: 900; font-size: 30rem; color: var(--ink); letter-spacing: .04em; }
+.sub-h i { height: 4rem; background: repeating-linear-gradient(90deg, var(--pink) 0 8rem, transparent 8rem 14rem, var(--sky) 14rem 22rem, transparent 22rem 28rem); }
+
+/* ---------- ボタン：レトロなOSのボタン（押すとカチッと沈む） ---------- */
+.btn { height: 56rem; min-width: 220rem; padding: 0 8rem 0 22rem; gap: 18rem; border: 2px solid var(--ink); border-radius: 14rem; background: #fff; color: var(--ink);
+  font-family: var(--f-en); font-weight: 400; font-size: 17rem; letter-spacing: .12em; box-shadow: 5rem 5rem 0 var(--hard); transition: translate .2s steps(2), box-shadow .2s steps(2), background .3s; }
+.btn::before { display: none; }
+.btn:hover { color: var(--ink); background: #fff4fa; translate: 3rem 3rem; box-shadow: 2rem 2rem 0 var(--hard); }
+.btn:active { translate: 5rem 5rem; box-shadow: 0 0 0 var(--hard); }
+.btn:hover span { text-shadow: none; }
+.btn i { width: 38rem; height: 38rem; border-radius: 10rem; background: var(--grad); color: #fff; }
+.btn:hover i { transform: none; }
+.btn:hover i svg { animation: pxNudge .6s steps(2) infinite; }
+@keyframes pxNudge { 50% { translate: 3rem 0; } }
+.btn.--ink { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 5rem 5rem 0 var(--hard-pink); }
+.btn.--ink:hover { background: #3c3651; color: #fff; box-shadow: 2rem 2rem 0 var(--hard-pink); }
+
+/* ---------- ニュース：MUTADOLL_OS のウィンドウ ---------- */
+.card { --cc: #7ccbff; --cs: #cdeaff; padding: 0; border: 2px solid var(--ink); border-radius: 16rem; background: #fff; box-shadow: 6rem 6rem 0 var(--cs); transition: translate .25s steps(2), box-shadow .25s steps(2); }
+.card.--event { --cc: #ff8fc0; --cs: #ffd2e6; } .card.--maid { --cc: #b49af0; --cs: #e4dbff; } .card.--menu { --cc: #ffad5c; --cs: #ffe0c2; } .card.--info { --cc: #6cc4ff; --cs: #cdeaff; }
+.card::before, .card::after { display: none; }
+.card:hover { transform: none; translate: -3rem -3rem; box-shadow: 9rem 9rem 0 var(--cs); }
+.card__bar { display: flex; align-items: center; gap: 10rem; padding: 8rem 12rem; background: var(--cc); border-bottom: 2px solid var(--ink); }
+.card__dots { display: flex; gap: 5rem; }
+.card__dots i { width: 9rem; height: 9rem; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.card .card__cat { align-self: auto; min-width: 0; margin: 0; padding: 0; border-radius: 0; background: none; color: #fff; font-family: var(--f-jp); font-weight: 800; font-size: 13rem; letter-spacing: .08em; text-shadow: 1px 1px 0 rgba(46,42,58,.25); }
+.card .card__date { margin-left: auto; color: #fff; font-family: var(--f-en); font-weight: 400; font-size: 13rem; letter-spacing: .06em; text-shadow: 1px 1px 0 rgba(46,42,58,.25); }
+.card .card__thumb { margin: 12rem 12rem 0; border-radius: 10rem; box-shadow: 0 0 0 1.5px rgba(46,42,58,.12); }
+.card__title { margin: 12rem 14rem 8rem; padding: 0; }
+.card .card__check { align-self: flex-end; margin: auto 12rem 12rem; height: auto; padding: 0; gap: 6rem; background: none; color: var(--ink); font-family: var(--f-en); font-weight: 400; font-size: 13rem; letter-spacing: .14em; }
+.card .card__check i { font-size: 10rem; color: var(--cc); }
+.card:hover .card__check i { transform: none; animation: pxNudge .6s steps(2) infinite; }
+
+/* ---------- ヒーロー下の帯：レースのリボン ---------- */
+.band { height: 100rem; background:
+  repeating-linear-gradient(90deg, rgba(255,255,255,.95) 0 8rem, transparent 8rem 14rem) 0 20rem / 100% 2px no-repeat,
+  repeating-linear-gradient(90deg, rgba(255,255,255,.95) 0 8rem, transparent 8rem 14rem) 0 calc(100% - 20rem) / 100% 2px no-repeat,
+  linear-gradient(90deg, #ffc6df, #e2d2fb 50%, #c4e5ff); }
+.band::before, .band::after { height: 12rem; box-shadow: none; background: radial-gradient(circle at 50% 0, #fff 6rem, transparent 6.6rem) 0 0 / 16rem 12rem repeat-x; }
+.band::after { background-image: radial-gradient(circle at 50% 100%, #fff 6rem, transparent 6.6rem); }
+.band__item { gap: 34rem; padding-right: 34rem; font-family: var(--f-en); font-weight: 400; font-size: 46rem; letter-spacing: .06em; color: #fff; text-shadow: 3rem 3rem 0 rgba(150,126,232,.55); }
+.band__item .o { color: var(--ink); -webkit-text-stroke: 0; text-shadow: 3rem 3rem 0 #fff; }
+.band__item i { flex: none; width: 28rem; height: 24rem; font-size: 0; text-shadow: none; background: var(--pink-d); -webkit-mask: var(--px-heart) center / 100% 100% no-repeat; mask: var(--px-heart) center / 100% 100% no-repeat; }
+.band__item i:nth-of-type(even) { background: #fff; }
+
+/* ---------- TOPボタン：ピクセルの矢印 ---------- */
+.go-top { width: auto; display: grid; justify-items: center; gap: 5rem; }
+.go-top__ic { display: grid; place-items: center; width: 54rem; height: 54rem; border: 2px solid var(--ink); border-radius: 14rem; background: #fff; box-shadow: 4rem 4rem 0 var(--hard); transition: translate .2s steps(2), box-shadow .2s steps(2); }
+.go-top__ic::before { content: ""; width: 24rem; height: 24rem; background: var(--grad); -webkit-mask: var(--px-up) center / 100% 100% no-repeat; mask: var(--px-up) center / 100% 100% no-repeat; }
+.go-top span { font-family: var(--f-en); font-weight: 400; font-size: 13rem; letter-spacing: .16em; color: var(--ink); background: none; -webkit-text-fill-color: currentColor; }
+.go-top:hover { color: var(--ink); }
+.go-top:hover .go-top__ic { translate: 2rem 2rem; box-shadow: 2rem 2rem 0 var(--hard); }
+.go-top:hover .go-top__ic::before { animation: pxHop .6s steps(2) infinite; }
+@keyframes pxHop { 50% { translate: 0 -4rem; } }
+
+@media (max-width: 768px) {
+  .gnav a { font-size: 15rem; }
+  .sec-head { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "en line" "jp jp"; row-gap: 10rem; }
+  .sec-head__code { display: none; }
+  .sec-head__line { display: block; }
+  .sec-head__en, .phead__en { font-size: 14rem; padding: 6rem 11rem 6rem 9rem; gap: 7rem; box-shadow: 3rem 3rem 0 var(--hard); }
+  .sec-head__en::before, .phead__en::before { width: 13rem; height: 11rem; }
+  .sec-head__jp { font-size: 34rem; }
+  .sec-head__jp::after { width: 8rem; margin-left: 6rem; }
+  .phead__jp { font-size: 42rem; }
+  .sub-h b { font-size: 13rem; }
+  .sub-h span { font-size: 21rem; }
+  .btn { height: 52rem; min-width: 200rem; font-size: 15rem; box-shadow: 4rem 4rem 0 var(--hard); }
+  .btn i { width: 34rem; height: 34rem; border-radius: 9rem; }
+  .card { border-radius: 14rem; box-shadow: 4rem 4rem 0 var(--cs); }
+  .card__bar { padding: 6rem 9rem; gap: 7rem; }
+  .card__dots i { width: 7rem; height: 7rem; }
+  .card .card__cat, .card .card__date { font-size: 10rem; }
+  .card .card__thumb { margin: 8rem 8rem 0; }
+  .card__title { margin: 8rem 10rem 6rem; }
+  .card .card__check { margin: auto 10rem 10rem; font-size: 11rem; }
+  .band { height: 66rem; background-position: 0 13rem, 0 calc(100% - 13rem), 0 0; }
+  .band::before, .band::after { height: 8rem; background-size: 11rem 8rem; }
+  .band::before { background-image: radial-gradient(circle at 50% 0, #fff 4rem, transparent 4.6rem); }
+  .band::after { background-image: radial-gradient(circle at 50% 100%, #fff 4rem, transparent 4.6rem); }
+  .band__item { font-size: 26rem; gap: 20rem; padding-right: 20rem; text-shadow: 2rem 2rem 0 rgba(150,126,232,.55); }
+  .band__item i { width: 18rem; height: 15rem; }
+  .go-top__ic { width: 44rem; height: 44rem; border-radius: 12rem; }
+  .go-top__ic::before { width: 20rem; height: 20rem; }
+  .go-top span { font-size: 11rem; }
+}
+@media (prefers-reduced-motion: reduce) { .sec-head__jp::after { animation: none; } }
+/* ABOUT 背景の大きな文字：ピクセルの線はガタつくので、まるい書体のふち文字に */
+.about__bg { font-family: var(--f-disp); font-weight: 900; letter-spacing: .02em; }

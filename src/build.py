@@ -259,7 +259,7 @@ SPRITE = '''<svg width="0" height="0" style="position:absolute" aria-hidden="tru
 
 FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@600;700&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap">
 <link rel="stylesheet" href="assets/site.css">'''
 
 BG = '''<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -336,7 +336,7 @@ def footer():
     <div class="footer__bottom"><span>MUTADOLLはVRChat上の有志によるイベントです。VRChat Inc. とは関係ありません。</span><span>© {date.today().year} MUTADOLL</span></div>
   </div>
 </footer>
-<a class="go-top" id="go-top" href="#top" aria-label="ページの先頭へ"><svg viewBox="0 0 64 58" aria-hidden="true"><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8fc0"/><stop offset="1" stop-color="#7ccbff"/></linearGradient></defs><path d="M32 5L59 53H5z" fill="url(#tg)" stroke="url(#tg)" stroke-width="7" stroke-linejoin="round"/><path d="M32 25l11 20H21z" fill="#fff"/></svg><span>TOP</span></a>'''
+<a class="go-top" id="go-top" href="#top" aria-label="ページの先頭へ"><i class="go-top__ic" aria-hidden="true"></i><span>TOP</span></a>'''
 
 def phead(en, jp, code, crumb=None, lead=""):
     crumb = crumb or f"<span>{en}</span>"
@@ -345,8 +345,7 @@ def phead(en, jp, code, crumb=None, lead=""):
     <div class="particles" data-p="phead"></div>
     <div class="inner">
       <nav class="crumb mono" aria-label="現在地"><a href="index.html">TOP</a><i>/</i>{crumb}</nav>
-      <div class="phead__title"><h1 class="phead__en grad-text">{en}</h1></div>
-      <p class="phead__jp">{jp}</p>
+      <div class="phead__title"><p class="phead__en">{en}</p><h1 class="phead__jp">{jp}</h1></div>
       <p class="phead__code mono">{code}</p>{lead}
     </div>
   </section>'''

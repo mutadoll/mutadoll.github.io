@@ -28,8 +28,8 @@ document.documentElement.classList.add("js");
   if (bento) {
     bento.classList.add("--n" + Math.min(NEWS.length, 5));
     bento.innerHTML = NEWS.slice(0, 5).map(function (n, i) {
-      return '<a class="card glass rv' + (i === 0 ? " --feature" : "") + '" href="' + link(n) + '"><span class="card__cat">' + CAT[n.cat][0] + '</span><div class="card__thumb">' + thumb(n) +
-        '</div><div class="card__meta"><p class="card__date">' + n.date + '</p></div><p class="card__title">' + esc(n.title) + '</p><span class="card__check">CHECK<i>♡</i></span></a>';
+      return '<a class="card rv --' + n.cat + (i === 0 ? " --feature" : "") + '" href="' + link(n) + '"><div class="card__bar"><span class="card__dots"><i></i><i></i><i></i></span><span class="card__cat">' + CAT[n.cat][0] +
+        '</span><span class="card__date">' + n.date + '</span></div><div class="card__thumb">' + thumb(n) + '</div><p class="card__title">' + esc(n.title) + '</p><span class="card__check">OPEN<i>▶</i></span></a>';
     }).join("");
     var nl = document.querySelector("#news-list ul");
     if (nl && NEWS.length <= 5) $("news-list").hidden = true;
