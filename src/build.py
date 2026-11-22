@@ -259,7 +259,7 @@ SPRITE = '''<svg width="0" height="0" style="position:absolute" aria-hidden="tru
 
 FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@600;700&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">'''
 
 BG = '''<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>

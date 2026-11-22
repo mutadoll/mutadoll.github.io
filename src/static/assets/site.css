@@ -2195,3 +2195,36 @@ body { font-family: var(--f-jp); }
 /* ヘッダー右のボタンはつぶれないように（スマホは呼び鈴・X・メニューが並ぶ） */
 .menu-btn, .h-x, .h-bell { flex: none; }
 @media (max-width: 768px) { .h-logo { flex: 0 1 auto; min-width: 0; } .h-logo img { max-width: 100%; height: auto; max-height: 44rem; } }
+
+/* =====================================================================
+   書体だけ前のものに戻す（英語・数字：Barlow Condensed ／ 日本語：IBM Plex Sans JP）
+   レイアウトや部品（タグ型の見出し・ウィンドウ・ボタン・帯など）はそのまま
+   ===================================================================== */
+:root {
+  --f-en: "Barlow Condensed", "IBM Plex Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --f-jp: "IBM Plex Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  --f-disp: "IBM Plex Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+}
+.fit { font-family: var(--f-en); font-weight: 800; letter-spacing: -.005em; line-height: .86; }
+.about__bg { font-family: var(--f-en); font-weight: 800; letter-spacing: 0; }
+.gnav a { font-weight: 600; font-size: 19rem; letter-spacing: .08em; }
+.h-join { font-weight: 600; font-size: 16rem; letter-spacing: .16em; }
+.sec-head__en, .phead__en, .sub-h b { font-weight: 700; }
+.sec-head__en { font-size: 20rem; } .phead__en { font-size: 22rem; } .sub-h b { font-size: 17rem; }
+.sec-head__code, .phead__code { font-weight: 600; }
+.sec-head__jp, .phead__jp, .sub-h span { font-weight: 700; }
+.btn { font-weight: 600; letter-spacing: .2em; }
+.card .card__date { font-weight: 600; font-size: 14rem; letter-spacing: .1em; }
+.card .card__check { font-weight: 700; font-size: 14rem; }
+.band__item { font-weight: 700; font-size: 58rem; }
+.go-top span { font-weight: 700; font-size: 14rem; }
+.board__bar, .hud-clock, .board__bar .pcvr, .hb__bar { font-weight: 600; }
+.board__bar .hero__pager__no b { font-weight: 700; font-size: 17rem; }
+.hb__cta b { font-weight: 700; font-size: 13rem; }
+@media (max-width: 768px) {
+  .sec-head__en, .phead__en { font-size: 15rem; } .sub-h b { font-size: 14rem; }
+  .band__item { font-size: 32rem; }
+  .board__bar .hero__pager__no b { font-size: 13rem; }
+  .hb__cta b { font-size: 9rem; }
+  .card .card__date { font-size: 11rem; letter-spacing: .04em; } .card .card__check { font-size: 11rem; }
+}
