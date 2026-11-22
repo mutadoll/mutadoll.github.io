@@ -501,6 +501,10 @@ def build_page(name, D):
 </body>
 </html>
 '''.replace("{{CASTN}}", str(len(D["cast"])))
+    # CSS・JS にバージョン（中身のハッシュ）を付けて、更新したらブラウザが必ず新しいものを読むようにする
+    for a in ("assets/site.css", "assets/site.js", "assets/cast.js", "assets/news.js", "assets/schedule.js"):
+        fp = os.path.join(OUT, a)
+        if os.path.exists(fp): out = out.replace(f'"{a}"', f'"{a}?v={hashlib.sha1(open(fp, "rb").read()).hexdigest()[:10]}"')
     left = re.findall(r"\{\{\w+\}\}", out)
     if left: raise SystemExit(f"{name}.html に置き換えていない部分があります: {left}")
     open(os.path.join(OUT, name + ".html"), "w", encoding="utf-8").write(out)
