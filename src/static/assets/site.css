@@ -2228,3 +2228,71 @@ body { font-family: var(--f-jp); }
   .hb__cta b { font-size: 9rem; }
   .card .card__date { font-size: 11rem; letter-spacing: .04em; } .card .card__check { font-size: 11rem; }
 }
+
+/* =====================================================================
+   トップ：ウィンドウのタイトルバー＝ナビゲーション、ウィンドウは帯（バナー）まで
+   - PCの広い画面：タイトルバーにロゴ・メニュー・JOIN GROUP・呼び鈴・X
+   - ウィンドウの下端（帯の上）にステータスバー（写真の切り替え・PCVR/DESKTOP・時計）
+   - 下へスクロールすると、同じタイトルバーの見た目のヘッダーが上から出てくる（ほかのページもこのヘッダー）
+   ===================================================================== */
+.h-dots { display: none; }
+.bb__nav { display: none; }
+
+/* ウィンドウ下端のステータスバー */
+.board__status { position: absolute; z-index: 8; left: calc(110 * var(--u)); right: calc(110 * var(--u)); bottom: 0; height: 46rem; display: flex; align-items: center; gap: 14rem; padding: 0 16rem;
+  border: 2px solid var(--ink); border-bottom: 0; background: rgba(255,255,255,.84); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  font-family: var(--f-en); font-weight: 600; font-size: 13rem; color: var(--ink); white-space: nowrap; }
+.board__status .hero__pager { position: static; display: flex; align-items: center; gap: 8rem; padding: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.board__status .hero__pager .arr { width: 28rem; height: 28rem; border: 2px solid var(--ink); border-radius: 8rem; background: #fff; color: var(--ink); box-shadow: 2rem 2rem 0 var(--hard); }
+.board__status .hero__pager .arr:hover { background: var(--ink); color: #fff; }
+.board__status .hero__pager .arr svg { width: 11rem; height: 11rem; }
+.board__status .hero__pager__no { font-family: var(--f-en); font-size: 12rem; color: var(--ink-2); }
+.board__status .hero__pager__no b { font-family: var(--f-en); font-weight: 700; font-size: 17rem; color: var(--ink); }
+.board__status .hero__pager__dots { gap: 4rem; }
+.board__status .hero__pager__dots button, .board__status .hero__pager__dots button[aria-current="true"] { width: 8rem; height: 8rem; border-radius: 0; background: rgba(46,42,58,.18); }
+.board__status .hero__pager__dots button[aria-current="true"] { background: var(--pink-d); }
+.board__status .hero__pager__bar { left: 0; right: 0; top: -2px; bottom: auto; height: 3rem; border-radius: 0; background: transparent; }
+.board__status .pcvr { padding: 2rem 9rem; border: 1.5px solid var(--ink); border-radius: 6rem; background: #fff; color: var(--ink); font-size: 11rem; font-weight: 600; letter-spacing: .1em; }
+.hero__book { right: calc(110 * var(--u) + 22rem); bottom: 66rem; }
+
+@media (min-width: 1101px) {
+  /* ほかのページ・スクロール後のヘッダー：ウィンドウのタイトルバー */
+  .header { --hl: max(16px, 44rem, env(safe-area-inset-left, 0px), calc((100vw - 1440rem) / 2 + 44rem)); --hr: max(16px, 40rem, env(safe-area-inset-right, 0px), calc((100vw - 1440rem) / 2 + 40rem));
+    padding-left: calc(var(--hl) + 18rem); padding-right: calc(var(--hr) + 14rem); gap: 22rem; transition: translate .45s var(--ease), opacity .45s var(--ease); }
+  .header::before { content: ""; position: absolute; z-index: -1; left: var(--hl); right: var(--hr); top: 16rem; height: 72rem; border: 2px solid var(--ink); border-radius: 18rem;
+    background: linear-gradient(90deg, #ffd8ea, #ebdfff 50%, #d6edff); box-shadow: 6rem 6rem 0 var(--hard); pointer-events: none; }
+  .h-dots { display: inline-flex; }
+  .header .h-logo img, .bb__nav .h-logo img { height: 48rem; filter: none; }
+  .header .gnav ul, .bb__nav .gnav ul { height: auto; padding: 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; }
+  .header .gnav ul { gap: 24rem; }
+  .header .h-x, .header .h-bell, .bb__nav .h-x, .bb__nav .h-bell { width: 44rem; height: 44rem; background: #fff; border: 2px solid var(--ink); box-shadow: 2rem 2rem 0 var(--hard); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .header .h-join, .bb__nav .h-join { height: 44rem; }
+
+  /* トップ：はじめはヘッダーを隠して、ウィンドウのタイトルバーがナビになる */
+  .is-home .header { translate: 0 -130%; opacity: 0; }
+  .is-home .header > * { pointer-events: none; }
+  .is-home.is-hdr .header { translate: 0 0; opacity: 1; }
+  .is-home.is-hdr .header > * { pointer-events: auto; }
+  .page-index .hero { --top: 22rem; }
+  .board__bar { height: 68rem; gap: 16rem; padding: 0 14rem 0 18rem; font-size: 13rem; }
+  .bb__name { display: none; }
+  .bb__nav { display: flex; align-items: center; gap: 20rem; flex: 1; min-width: 0; }
+  .bb__nav .gnav { flex: 1; display: flex; justify-content: center; }
+  .bb__nav .gnav ul { display: flex; align-items: center; gap: 24rem; }
+  .page-index .hero__title { top: calc(36 * var(--u) + 68rem); }
+  .page-index .hero__fig { --ft: calc(var(--top) + 68rem + 36 * var(--u) + 84 * var(--u)); }
+}
+@media (max-width: 768px) {
+  .board__status { left: calc(14 * var(--u)); right: calc(14 * var(--u)); height: 32rem; gap: 8rem; padding: 0 10rem; font-size: 10rem; }
+  .board__status .pcvr, .board__status .hero__pager__dots { display: none; }
+  .board__status .hero__pager .arr { width: 22rem; height: 22rem; border-radius: 6rem; }
+  .board__status .hero__pager__no b { font-size: 13rem; }
+  .hero__book { right: calc(14 * var(--u) + 8rem); bottom: 42rem; }
+}
+/* タイトルバーのナビ：右端のボタンが枠からはみ出さないように少しつめる */
+@media (min-width: 1101px) {
+  .board__bar { gap: 12rem; padding-right: 12rem; }
+  .bb__nav { gap: 14rem; }
+  .bb__nav .gnav ul { gap: 19rem; }
+  .bb__nav .h-logo img { height: 44rem; }
+}

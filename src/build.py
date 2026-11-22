@@ -305,6 +305,7 @@ def header(cur):
     lis = "".join(f'<li><a href="{k}.html"{AC if k == cur else ""}>{en}</a></li>' for k, en, jp in NAV)
     sp = "\n".join(f'  <a class="sp-link" href="{k}.html"{AC if k == cur else ""}>{en}<small>{jp}</small></a>' for k, en, jp in NAV)
     return f'''<header class="header">
+  <span class="os-dots h-dots" aria-hidden="true"><i></i><i></i><i></i></span>
   <a class="h-logo" href="index.html"><img src="img/logo.webp" alt="みゅーたどーる（MUTADOLL）トップへ" width="960" height="239"></a>
   <nav class="gnav" aria-label="メインメニュー">
     <ul class="glass">{lis}</ul>
@@ -320,6 +321,14 @@ def header(cur):
   <a class="sp-link" href="contact.html"{AC if cur == "contact" else ""}>CONTACT<small>お問い合わせ</small></a>
   <a class="btn" href="https://x.com/MUTADOLL" target="_blank" rel="noopener"><span>FOLLOW ON X</span><i>{ARROW}</i></a>
 </nav>'''
+
+def win_nav():
+    """トップのウィンドウのタイトルバー＝ナビゲーション（PCの広い画面）"""
+    lis = "".join(f'<li><a href="{k}.html">{en}</a></li>' for k, en, jp in NAV)
+    return (f'<a class="h-logo" href="index.html"><img src="img/logo.webp" alt="みゅーたどーる（MUTADOLL）トップへ" width="960" height="239"></a>'
+            f'<nav class="gnav" aria-label="メインメニュー"><ul>{lis}</ul></nav>'
+            f'<a class="h-join" href="https://vrc.group/2024.4190" target="_blank" rel="noopener">JOIN GROUP<i>{ARROW}</i></a>'
+            f'<a class="h-bell glass" href="contact.html" aria-label="お問い合わせ（呼び鈴）"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 24h22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 21.5a9 9 0 0 1 18 0z" fill="#ff9cc6" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 12.5V9.5M13 9.5h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M11.2 18.6a5.4 5.4 0 0 1 3.2-3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></a><a class="h-x glass" href="https://x.com/MUTADOLL" target="_blank" rel="noopener" aria-label="MUTADOLLのX（新しいタブで開く）"><svg viewBox="0 0 512 512" aria-hidden="true"><use href="#i-x"/></svg></a>')
 
 def footer():
     links = "".join(f'<a href="{k}.html">{en}</a>' for k, en, jp in NAV)
@@ -451,7 +460,7 @@ def build_page(name, D):
     body = open(os.path.join(SRC, name + ".html"), encoding="utf-8").read().strip()
     gal, photon = gallery(D["photos"], "maids" if name == "maids" else "media")
     rep = {"{{ARROW}}": ARROW, "{{BACK}}": back(), "{{CASTN}}": str(len(D["cast"])), "{{PHOTON}}": str(photon),
-           "{{MOVIEN}}": str(len(D["movies"])), "{{HERO_SLIDES}}": hero_slides(D["photos"]), "{{GALLERY}}": gal}
+           "{{MOVIEN}}": str(len(D["movies"])), "{{WINNAV}}": win_nav(), "{{HERO_SLIDES}}": hero_slides(D["photos"]), "{{GALLERY}}": gal}
     if "{{MOVIES}}" in body: rep.update({"{{MOVIES}}": movie_list(D["movies"], D["cast"]), "{{MOVIETABS}}": movie_tabs(D["movies"])})
     if "{{CAST}}" in body: rep.update({"{{CAST}}": cast_list(D["cast"]), "{{CASTTABS}}": cast_tabs(D["cast"]), "{{CASTDATA}}": cast_data(D["cast"])})
     if ph: rep["{{PHEAD}}"] = phead(*ph)
@@ -474,7 +483,7 @@ def build_page(name, D):
 {head_meta(name, title, desc)}
 {FONTS}
 </head>
-<body>
+<body{' class="is-home"' if name == "index" else ""}>
 {SPRITE}
 
 {BG}

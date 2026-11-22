@@ -6,16 +6,7 @@
         <div class="board__bar">
           <span class="os-dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <span class="bb__name">MUTADOLL_OS — welcome.exe</span>
-          <span class="pcvr">PCVR / DESKTOP</span>
-          <span class="bb__sp"></span>
-          <div class="hero__pager" aria-label="写真の切り替え">
-          <button class="arr" type="button" id="hero-prev" aria-label="前の写真"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3L5 7l4 4"/></svg></button>
-          <span class="hero__pager__no mono"><b id="hero-no">01</b> / <span id="hero-total">12</span></span>
-          <span class="hero__pager__dots" id="hero-dots"></span>
-          <button class="arr" type="button" id="hero-next" aria-label="次の写真"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg></button>
-          <i class="hero__pager__bar" id="hero-bar"></i>
-        </div>
-          <span class="hud-clock">JST <em id="jst-clock">--:--:--</em></span>
+          <div class="bb__nav">{{WINNAV}}</div>
         </div>
         <div class="floor" aria-hidden="true"></div>
         <h1 class="hero__title" id="hero-title" aria-label="Welcome to MUTADOLL">
@@ -30,6 +21,18 @@
         </div>
         <i class="hero__glitch" aria-hidden="true"></i><i class="hero__glitch --b" aria-hidden="true"></i>
         <i class="hero__scanline" id="hero-scan" aria-hidden="true"></i>
+      </div>
+      <div class="board__status">
+        <div class="hero__pager" aria-label="写真の切り替え">
+        <button class="arr" type="button" id="hero-prev" aria-label="前の写真"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3L5 7l4 4"/></svg></button>
+        <span class="hero__pager__no mono"><b id="hero-no">01</b> / <span id="hero-total">12</span></span>
+        <span class="hero__pager__dots" id="hero-dots"></span>
+        <button class="arr" type="button" id="hero-next" aria-label="次の写真"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg></button>
+        <i class="hero__pager__bar" id="hero-bar"></i>
+        </div>
+        <span class="bb__sp"></span>
+        <span class="pcvr">PCVR / DESKTOP</span>
+        <span class="hud-clock">JST <em id="jst-clock">--:--:--</em></span>
       </div>
       <button class="hero__book" type="button" id="open-about" data-open-about aria-haspopup="dialog" aria-label="はじめての方へ（ご帰宅ガイドを開く）">
         <span class="hb__bar" aria-hidden="true"><span class="os-dots"><i></i><i></i><i></i></span>MEMBERSHIP.exe</span>

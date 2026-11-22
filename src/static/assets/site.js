@@ -160,6 +160,12 @@ document.documentElement.classList.add("js");
     });
   });
 
+  /* ---------- トップ：ウィンドウのタイトルバー（ナビ）が画面から出たら、上にヘッダーを出す ---------- */
+  var winBar = document.querySelector(".board__bar");
+  if (winBar && document.body.classList.contains("is-home") && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (es) { document.body.classList.toggle("is-hdr", !es[0].isIntersecting); }, { rootMargin: "-8px 0px 0px 0px" }).observe(winBar);
+  }
+
   /* ---------- トップ：写真の切り替え（文字は固定、写真はハートが広がって切り替わる） ---------- */
   var slideBox = $("hero-slides");
   if (slideBox) {
