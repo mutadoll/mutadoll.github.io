@@ -106,15 +106,50 @@ document.documentElement.classList.add("js");
   /* ---------- トップの大きな文字を幅いっぱいに ---------- */
   /* トップの大きな文字：MUTADOLL_OS のように1文字ずつタイプされる（最後にカーソル） */
   function typeTitle() {
+    var longest = 0;
     document.querySelectorAll("#hero-title .lines").forEach(function (lines) {
       var t = 0;
       lines.querySelectorAll(":scope > .fit").forEach(function (f) {
         if (reduce) { f.classList.add("is-typed"); return; }
         var n = Math.max(4, f.textContent.length), d = n * 62;
         f.style.setProperty("--n", n); f.style.setProperty("--td", d + "ms"); f.style.animationDelay = t + "ms";
-        f.classList.remove("is-typing"); void f.offsetWidth; f.classList.add("is-typing"); t += d + 90;
+        f.classList.remove("is-typing", "is-erasing"); void f.offsetWidth; f.classList.add("is-typing"); t += d + 90;
       });
+      longest = Math.max(longest, t);
     });
+    return longest;
+  }
+  /* はじめに「Hello, World!」とタイプ → 少し止まって消す → 「WELCOME TO MUTADOLL」をタイプ */
+  var HELLO = { pc: '<span class="fit --hello">Hello, <span class="g">World!</span><i class="hero__cur"></i></span>',
+                sp: '<span class="fit --hello">Hello,</span><span class="fit --hello"><span class="g">World!</span><i class="hero__cur"></i></span>' };
+  function introTitle() {
+    var t = $("hero-title");
+    if (!t || reduce || root.classList.contains("is-open-now")) { typeTitle(); return; }
+    var groups = [].slice.call(t.querySelectorAll(".lines")), saved = groups.map(function (g) { return g.innerHTML; });
+    fitTitle();
+    var sizes = groups.map(function (g) { return [].map.call(g.querySelectorAll(":scope > .fit"), function (f) { return f.style.fontSize; }); });
+    scrBusy++;   // タイプ中は文字の大きさを測り直さない
+    groups.forEach(function (g, i) {
+      g.innerHTML = g.classList.contains("lines--sp") ? HELLO.sp : HELLO.pc;
+      [].forEach.call(g.querySelectorAll(":scope > .fit"), function (f, k) { f.style.fontSize = sizes[i][Math.min(k, sizes[i].length - 1)]; });
+    });
+    var tHello = typeTitle();
+    setTimeout(function () {
+      var tErase = 0;
+      groups.forEach(function (g) {
+        var t2 = 0;
+        [].slice.call(g.querySelectorAll(":scope > .fit")).reverse().forEach(function (f) {
+          var n = Math.max(4, f.textContent.length), d = n * 30;
+          f.style.setProperty("--n", n); f.style.setProperty("--ed", d + "ms"); f.style.animationDelay = t2 + "ms";
+          f.classList.remove("is-typing", "is-typed"); void f.offsetWidth; f.classList.add("is-erasing"); t2 += d + 40;
+        });
+        tErase = Math.max(tErase, t2);
+      });
+      setTimeout(function () {
+        groups.forEach(function (g, i) { g.innerHTML = saved[i]; });
+        scrBusy--; fitPending = false; fitTitle(); typeTitle();
+      }, tErase + 140);
+    }, tHello + 950);
   }
   function fitTitle() {
     if (scrBusy > 0) { fitPending = true; return; }
@@ -1094,7 +1129,7 @@ document.documentElement.classList.add("js");
     fitTitle();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
     var rt; addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fitTitle, 120); });
-    onReady(function () { setTimeout(typeTitle, 250); });
+    onReady(function () { setTimeout(introTitle, 250); });
   }
   var ph = document.querySelector(".phead__en");
   if (ph) setTimeout(function () { scramble(ph, 800); }, 150);
