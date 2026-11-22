@@ -259,7 +259,7 @@ SPRITE = '''<svg width="0" height="0" style="position:absolute" aria-hidden="tru
 
 FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@600;700&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@700;900&family=Rajdhani:wght@500;600;700&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">'''
 
 BG = '''<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -348,12 +348,14 @@ def phead(en, jp, code, crumb=None, lead=""):
     crumb = crumb or f"<span>{en}</span>"
     lead = f'\n      <p class="phead__lead">{lead}</p>' if lead else ""
     return f'''<section class="phead">
-    <div class="particles" data-p="phead"></div>
+    <div class="fx" data-fx="phead" aria-hidden="true"></div>
     <div class="inner">
       <nav class="crumb mono" aria-label="現在地"><a href="index.html">TOP</a><i>/</i>{crumb}</nav>
-      <div class="phead__title"><h1 class="phead__en grad-text">{en}</h1></div>
-      <p class="phead__jp">{jp}</p>
-      <p class="phead__code mono">{code}</p>{lead}
+      <div class="phead__row">
+        <h1 class="phead__en grad-text" style="--len:{len(en)}">{en}</h1>
+        <div class="phead__side"><p class="phead__jp">{jp}</p><p class="phead__code mono">{code}</p></div>
+        <i class="phead__line" aria-hidden="true"></i>
+      </div>{lead}
     </div>
   </section>'''
 

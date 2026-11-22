@@ -53,10 +53,12 @@ document.documentElement.classList.add("js");
       var list = NEWS.filter(function (n) { return cur === "all" || n.cat === cur; }), pages = Math.max(1, Math.ceil(list.length / PER));
       page = Math.min(page, pages);
       [].forEach.call(tabs.children, function (b) { b.setAttribute("aria-selected", b.dataset.cat === cur); });
+      /* ファイル一覧の形：アイコン（サムネイル）・タイトル・種類・日付・OPEN */
       nlist.innerHTML = list.slice((page - 1) * PER, page * PER).map(function (n) {
-        return '<a class="nrow glass" href="' + link(n) + '"><div class="card__thumb">' + thumb(n) + '</div><div><div class="nrow__meta"><span class="card__cat">' + CAT[n.cat][0] +
-          '</span><span class="card__date">' + n.date + '</span></div><p class="nrow__title">' + esc(n.title) + '</p></div><span class="nrow__go">' + ARROW + "</span></a>";
+        return '<a class="nfile --' + n.cat + '" href="' + link(n) + '"><span class="nfile__ic">' + thumb(n) + '</span><span class="nfile__name">' + esc(n.title) +
+          '</span><span class="nfile__type"><i></i>' + CAT[n.cat][0] + '</span><span class="nfile__date">' + n.date + '</span><span class="nfile__open">OPEN<i>▶</i></span></a>';
       }).join("") || '<p class="empty">このカテゴリのお知らせはまだありません。</p>';
+      var cnt = $("nwin-count"); if (cnt) cnt.textContent = list.length + " 件";
       var h = '<button type="button" class="--prev" aria-label="前のページ" data-p="' + (page - 1) + '"' + (page === 1 ? " disabled" : "") + ">" + ARROW + "</button>";
       for (var p = 1; p <= pages; p++) h += '<button type="button" data-p="' + p + '"' + (p === page ? ' aria-current="page"' : "") + ">" + p + "</button>";
       h += '<button type="button" class="--next" aria-label="次のページ" data-p="' + (page + 1) + '"' + (page === pages ? " disabled" : "") + ">" + ARROW + "</button>";
@@ -74,7 +76,7 @@ document.documentElement.classList.add("js");
       NEWS.forEach(function (n, k) { if (n.id === id) i = k; });
       var n = NEWS[i], newer = NEWS[i - 1], older = NEWS[i + 1];
       if (!n) { art.innerHTML = '<p class="empty">お知らせはまだありません。</p>'; return; }
-      art.innerHTML = '<div class="card__thumb">' + thumb(n) + '</div><div class="article__meta"><span class="card__cat">' + CAT[n.cat][0] + '</span><span class="card__date">' + n.date +
+      art.innerHTML = '<div class="card__thumb">' + thumb(n) + '</div><div class="article__meta nfile --' + n.cat + '"><span class="nfile__type"><i></i>' + CAT[n.cat][0] + '</span><span class="nfile__date">' + n.date +
         '</span></div><h2 class="article__title">' + esc(n.title) + '</h2><div class="article__body">' + n.body + "</div>";
       $("article-nav").innerHTML =
         (newer ? '<a class="pn --prev" href="' + link(newer) + '"><small>‹ NEWER</small><span>' + esc(newer.title) + "</span></a>" : '<span class="ph"></span>') +
@@ -164,33 +166,32 @@ document.documentElement.classList.add("js");
     });
   }
 
-  /* ---------- 背景のHUD（ロックオン枠・回るリング・システム表示）とピクセルハート ----------
-     並びは [形, 色, 向き, 横%, 縦%]。形：big=リング／thick=ロックオン枠／thin=小さい枠／small=システム表示／heart=ピクセルハート */
-  var layouts = {
-    hero:     [["big","blue","left",1,14],["small","black","left",20,4],["small","pink","right",36,90],["thick","pink","right",96,40],["thin","blue","left",58,2],["heart","pink","",47,1],["heart s","blue","",84,94],["heart s","pink","",4,70]],
-    news:     [["big","blue","left",60,-4],["small","black","right",88,6],["thick","pink","left",1,40],["thin","blue","right",96,66],["heart","pink","",80,2]],
-    about:    [["big","black","right",94,-6],["small","pink","left",4,72],["thick","blue","left",1,14],["heart s","pink","",40,2]],
-    maids:    [["thick","pink","left",1,44],["small","black","left",4,50],["thin","blue","right",96,30],["big","black","right",94,62],["heart","pink","",56,2]],
-    schedule: [["big","blue","left",1,6],["small","pink","right",94,8],["small","black","right",97,72],["heart s","blue","",36,1]],
-    guide:    [["thick","pink","right",95,6],["small","blue","left",2,44],["big","blue","right",97,60],["heart s","pink","",48,2]],
-    group:    [["small","black","left",4,10],["big","blue","right",94,6],["thick","pink","right",96,44],["heart","blue","",62,2]],
-    phead:    [["big","blue","left",4,18],["small","black","left",14,64],["thick","pink","right",88,22],["small","pink","right",95,70],["thin","blue","left",78,4],["heart","pink","",22,20],["heart s","blue","",86,46]],
-    sub:      [["thick","pink","left",1,10],["small","black","right",96,30],["big","blue","right",97,64],["small","blue","left",2,74],["heart s","pink","",3,46]]
+  /* ---------- 背景の演出：HUD（ロックオン枠・回るリング・システム表示）とピクセルハート ----------
+     並びは [種類, 色, 横%, 縦%]。種類：ring＝回るリング／lock＝ロックオン枠／lock-s＝小さい枠／txt＝システム表示／heart・heart-s＝ピクセルハート
+     色：pink／sky／lilac */
+  var fxLayouts = {
+    hero:     [["ring","sky",1,14], ["txt","lilac",20,4], ["txt","pink",36,90], ["lock","pink",96,40], ["lock-s","sky",58,2], ["heart","pink",47,1], ["heart-s","sky",84,94], ["heart-s","pink",4,70]],
+    news:     [["ring","sky",60,-4], ["txt","lilac",88,6], ["lock","pink",1,40], ["lock-s","sky",96,66], ["heart","pink",80,2]],
+    about:    [["ring","lilac",94,-6], ["txt","pink",4,72], ["lock","sky",1,14], ["heart-s","pink",40,2]],
+    maids:    [["lock","pink",1,44], ["txt","lilac",4,50], ["lock-s","sky",96,30], ["ring","lilac",94,62], ["heart","pink",56,2]],
+    schedule: [["ring","sky",1,6], ["txt","pink",94,8], ["txt","lilac",97,72], ["heart-s","sky",36,1]],
+    guide:    [["lock","pink",95,6], ["txt","sky",2,44], ["ring","sky",97,60], ["heart-s","pink",48,2]],
+    group:    [["txt","lilac",4,10], ["ring","sky",94,6], ["lock","pink",96,44], ["heart","sky",62,2]],
+    phead:    [["ring","sky",4,18], ["txt","lilac",74,30], ["lock","pink",88,22], ["txt","pink",74,92], ["lock-s","sky",78,4], ["heart","pink",22,20], ["heart-s","sky",86,46]],
+    sub:      [["lock","pink",1,10], ["txt","lilac",96,30], ["ring","sky",97,64], ["txt","sky",2,74], ["heart-s","pink",3,46]]
   };
   var HUD_TXT = ["SYS // ONLINE", "MAID_SYNC 98%", "♡ HEART.EXE", "22:00 JST", "LOCK ON ▶", "MUTADOLL_OS", "WELCOME_HOME", "SIGNAL ▮▮▮▯", "OKAERI.EXE", "2ND & 4TH WED", "VRCHAT // LINK", "OSHI_SEARCH..."];
-  var HUD_KIND = { big: "ring", thick: "lock", thin: "lock --s", small: "txt" };
-  document.querySelectorAll("[data-p]").forEach(function (box, bi) {
-    (layouts[box.dataset.p] || []).forEach(function (d, i) {
-      var el = document.createElement("i"), t = d[0].split(" "), x = d[3];
-      var dur = "--dur:" + (6 + ((i * 7 + bi * 3) % 5)) + "s;--delay:" + (-((i * 13 + bi * 5) % 7)) + "s";
-      if (t[0] === "heart") {
-        el.className = "particle --heart" + (t[1] ? " --" + t[1] : "") + " --" + d[1];
+  document.querySelectorAll("[data-fx]").forEach(function (box, bi) {
+    (fxLayouts[box.dataset.fx] || []).forEach(function (d, i) {
+      var el = document.createElement("i"), kind = d[0], x = d[2], y = d[3];
+      var time = "--dur:" + (6 + ((i * 7 + bi * 3) % 5)) + "s;--delay:" + (-((i * 13 + bi * 5) % 7)) + "s";
+      if (kind.indexOf("heart") === 0) {
+        el.className = "px-heart --" + d[1] + (kind === "heart-s" ? " --s" : "");
       } else {
-        var k = HUD_KIND[t[0]] || "lock";
-        el.className = "hud --" + k + " --" + d[1];
-        if (k === "txt") { var txt = HUD_TXT[(bi * 5 + i * 3) % HUD_TXT.length]; el.textContent = txt; el.style.setProperty("--n", txt.length); x = Math.min(x, 74); if (d[4] < 12) d = d.slice(0, 4).concat([12]); }
+        el.className = "hud --" + kind.replace("-s", " --s") + " --" + d[1];
+        if (kind === "txt") { var txt = HUD_TXT[(bi * 5 + i * 3) % HUD_TXT.length]; el.textContent = txt; el.style.setProperty("--n", txt.length); x = Math.min(x, 74); y = Math.max(y, 12); }
       }
-      el.style.cssText += "left:" + x + "%;top:" + d[4] + "%;" + dur;
+      el.style.cssText += "left:" + x + "%;top:" + y + "%;" + time;
       box.appendChild(el);
     });
   });
@@ -204,12 +205,10 @@ document.documentElement.classList.add("js");
   /* ---------- トップ：写真の切り替え（文字は固定、写真はハートが広がって切り替わる） ---------- */
   var slideBox = $("hero-slides");
   if (slideBox) {
-    var slides = slideBox.querySelectorAll("img"), si = 0, sTimer, SINT = 5200, dotBox = $("hero-dots"), figEl = $("hero-fig");
+    var slides = slideBox.querySelectorAll("img"), si = 0, sTimer, SINT = 5200, dotBox = $("hero-dots");
     var ensure = function (k) { var im = slides[(k + slides.length) % slides.length]; if (im.dataset.src && !im.getAttribute("src")) im.src = im.dataset.src; return im; };
-    var srcOf = function (k) { return 'url("' + new URL(ensure(k).getAttribute("src"), location.href).href + '")'; };
     var total = $("hero-total"); if (total) total.textContent = pad(slides.length);
     addEventListener("load", function () { setTimeout(function () { ensure(1); }, 600); });
-    figEl.style.setProperty("--src", srcOf(0));
     $("hero-bar").style.setProperty("--int", SINT + "ms");
     slides.forEach(function (im, k) {
       var b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", "写真 " + (k + 1)); b.setAttribute("aria-current", k === 0 ? "true" : "false");
@@ -227,12 +226,8 @@ document.documentElement.classList.add("js");
       var prev = slides[si], next = slides[k];
       prev.classList.remove("is-on", "is-in"); prev.setAttribute("aria-hidden", "true");
       next.classList.remove("is-in"); void next.offsetWidth; next.classList.add("is-on"); next.removeAttribute("aria-hidden");
-      figEl.style.setProperty("--src", srcOf(k));
       if (!reduce) {
         next.classList.add("is-in");
-        figEl.classList.remove("is-burst"); void figEl.offsetWidth; figEl.classList.add("is-burst");
-        setTimeout(function () { figEl.classList.remove("is-burst"); }, 900);
-        var sc = $("hero-scan"); sc.classList.remove("is-run"); void sc.offsetWidth; sc.classList.add("is-run");
       }
       si = k; $("hero-no").textContent = pad(k + 1);
       [].forEach.call(dotBox.children, function (b, n) { b.setAttribute("aria-current", n === k ? "true" : "false"); });
@@ -626,9 +621,6 @@ document.documentElement.classList.add("js");
 
     function applyVip() {
       root.classList.toggle("is-vip", isVip());
-      var em = document.querySelector(".mship__top em"), no = document.querySelector(".mship__no");
-      if (em) em.textContent = isVip() ? "VIP MEMBER" : "MEMBERSHIP CARD";
-      if (no) no.textContent = isVip() ? "VIP ♡ 2026 0008" : "MD ♡ 2026 0001";
       var dt = document.querySelector(".dlg__title"); if (dt) dt.textContent = isVip() ? "MUTADOLL_OS — VIP MEMBER ♡" : "MUTADOLL_OS";
     }
     function placeHeart() {
