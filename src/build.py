@@ -351,7 +351,8 @@ def phead(en, jp, code, crumb=None, lead=""):
     <div class="particles" data-p="phead"></div>
     <div class="inner">
       <nav class="crumb mono" aria-label="現在地"><a href="index.html">TOP</a><i>/</i>{crumb}</nav>
-      <div class="phead__title"><p class="phead__jp">{jp}</p><h1 class="phead__en">{en}</h1></div>
+      <div class="phead__title"><h1 class="phead__en grad-text">{en}</h1></div>
+      <p class="phead__jp">{jp}</p>
       <p class="phead__code mono">{code}</p>{lead}
     </div>
   </section>'''

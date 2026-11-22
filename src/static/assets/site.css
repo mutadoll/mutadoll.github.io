@@ -1994,30 +1994,10 @@ body { font-family: var(--f-jp); }
 .h-join i { width: 32rem; height: 32rem; border-radius: 9rem; }
 
 /* ---------- セクションの見出し：ピクセルのタグ ＋ 大きな日本語 ---------- */
-.sec-head { display: grid; grid-template-columns: auto auto minmax(0, 1fr); grid-template-areas: "en code line" "jp jp jp"; align-items: center; column-gap: 14rem; row-gap: 12rem; }
-.sec-head__en, .phead__en { display: inline-flex; align-items: center; gap: 9rem; width: fit-content; margin: 0; padding: 7rem 14rem 7rem 11rem; border: 2px solid var(--ink); border-radius: 10rem; background: #fff;
-  box-shadow: 4rem 4rem 0 var(--hard); font-family: var(--f-en); font-weight: 400; font-size: 18rem; line-height: 1; letter-spacing: .14em; color: var(--ink); -webkit-text-fill-color: currentColor; filter: none; }
-.sec-head__en::before, .phead__en::before { content: ""; flex: none; width: 16rem; height: 14rem; background: var(--pink-d); -webkit-mask: var(--px-heart) center / 100% 100% no-repeat; mask: var(--px-heart) center / 100% 100% no-repeat; }
-.sec-head__en { grid-area: en; }
-.sec-head__code { grid-area: code; margin: 0; font-family: var(--f-en); font-size: 13rem; color: var(--ink-2); }
-.sec-head__line { grid-area: line; height: 4rem; margin: 0; background: repeating-linear-gradient(90deg, var(--pink) 0 8rem, transparent 8rem 14rem, var(--sky) 14rem 22rem, transparent 22rem 28rem); }
-.sec-head__jp, .phead__jp { margin: 0; font-family: var(--f-disp); font-weight: 900; line-height: 1.15; letter-spacing: .04em; text-wrap: balance;
-  background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(3rem 3rem 0 #fff) drop-shadow(0 10rem 18rem rgba(214,166,242,.35)); }
-.sec-head__jp { grid-area: jp; display: block; font-size: 64rem; }
-.sec-head__jp::after { content: ""; display: inline-block; width: 12rem; height: .8em; margin-left: 10rem; vertical-align: -.06em; background: var(--pink-d); animation: blink 1s steps(1) infinite; }
 
 /* ---------- 各ページの見出し ---------- */
-.phead__title { display: grid; justify-items: center; gap: 16rem; margin-top: 26rem; }
-.phead__en { font-size: 20rem; padding: 8rem 16rem 8rem 12rem; }
-.phead__jp { display: block; width: auto; font-size: 100rem; }
-.phead__jp::before, .phead__jp::after { content: none; }
-.phead__code { margin-top: 12rem; font-family: var(--f-en); font-size: 13rem; }
 
 /* ---------- 小見出し ---------- */
-.sub-h { align-items: center; gap: 14rem; }
-.sub-h b { padding: 6rem 12rem; border: 2px solid var(--ink); border-radius: 9rem; background: #fff; box-shadow: 3rem 3rem 0 var(--hard); font-family: var(--f-en); font-weight: 400; font-size: 15rem; line-height: 1; letter-spacing: .12em; color: var(--ink); }
-.sub-h span { font-family: var(--f-disp); font-weight: 900; font-size: 30rem; color: var(--ink); letter-spacing: .04em; }
-.sub-h i { height: 4rem; background: repeating-linear-gradient(90deg, var(--pink) 0 8rem, transparent 8rem 14rem, var(--sky) 14rem 22rem, transparent 22rem 28rem); }
 
 /* ---------- ボタン：レトロなOSのボタン（押すとカチッと沈む） ---------- */
 .btn { height: 56rem; min-width: 220rem; padding: 0 8rem 0 22rem; gap: 18rem; border: 2px solid var(--ink); border-radius: 14rem; background: #fff; color: var(--ink);
@@ -2073,16 +2053,16 @@ body { font-family: var(--f-jp); }
 
 @media (max-width: 768px) {
   .gnav a { font-size: 15rem; }
-  .sec-head { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "en line" "jp jp"; row-gap: 10rem; }
-  .sec-head__code { display: none; }
-  .sec-head__line { display: block; }
-  .sec-head__en, .phead__en { font-size: 14rem; padding: 6rem 11rem 6rem 9rem; gap: 7rem; box-shadow: 3rem 3rem 0 var(--hard); }
-  .sec-head__en::before, .phead__en::before { width: 13rem; height: 11rem; }
-  .sec-head__jp { font-size: 34rem; }
-  .sec-head__jp::after { width: 8rem; margin-left: 6rem; }
-  .phead__jp { font-size: 42rem; }
-  .sub-h b { font-size: 13rem; }
-  .sub-h span { font-size: 21rem; }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   .btn { height: 52rem; min-width: 200rem; font-size: 15rem; box-shadow: 4rem 4rem 0 var(--hard); }
   .btn i { width: 34rem; height: 34rem; border-radius: 9rem; }
   .card { border-radius: 14rem; box-shadow: 4rem 4rem 0 var(--cs); }
@@ -2102,7 +2082,7 @@ body { font-family: var(--f-jp); }
   .go-top__ic::before { width: 20rem; height: 20rem; }
   .go-top span { font-size: 11rem; }
 }
-@media (prefers-reduced-motion: reduce) { .sec-head__jp::after { animation: none; } }
+
 /* ABOUT 背景の大きな文字：ピクセルの線はガタつくので、まるい書体のふち文字に */
 .about__bg { font-family: var(--f-disp); font-weight: 900; letter-spacing: .02em; }
 
@@ -2209,10 +2189,9 @@ body { font-family: var(--f-jp); }
 .about__bg { font-family: var(--f-en); font-weight: 800; letter-spacing: 0; }
 .gnav a { font-weight: 600; font-size: 19rem; letter-spacing: .08em; }
 .h-join { font-weight: 600; font-size: 16rem; letter-spacing: .16em; }
-.sec-head__en, .phead__en, .sub-h b { font-weight: 700; }
-.sec-head__en { font-size: 20rem; } .phead__en { font-size: 22rem; } .sub-h b { font-size: 17rem; }
-.sec-head__code, .phead__code { font-weight: 600; }
-.sec-head__jp, .phead__jp, .sub-h span { font-weight: 700; }
+
+  
+
 .btn { font-weight: 600; letter-spacing: .2em; }
 .card .card__date { font-weight: 600; font-size: 14rem; letter-spacing: .1em; }
 .card .card__check { font-weight: 700; font-size: 14rem; }
@@ -2222,7 +2201,7 @@ body { font-family: var(--f-jp); }
 .board__bar .hero__pager__no b { font-weight: 700; font-size: 17rem; }
 .hb__cta b { font-weight: 700; font-size: 13rem; }
 @media (max-width: 768px) {
-  .sec-head__en, .phead__en { font-size: 15rem; } .sub-h b { font-size: 14rem; }
+   
   .band__item { font-size: 32rem; }
   .board__bar .hero__pager__no b { font-size: 13rem; }
   .hb__cta b { font-size: 9rem; }
@@ -2300,33 +2279,7 @@ body { font-family: var(--f-jp); }
 /* =====================================================================
    見出しを英語に戻す：大きな英語（グラデーション＋点滅カーソル） ＋ 日本語の小さなタグ（ピクセルハート）
    ===================================================================== */
-.sec-head { grid-template-areas: "jp code line" "en en en"; }
-.sec-head__jp, .phead__jp, .sub-h span { display: inline-flex; align-items: center; gap: 9rem; width: fit-content; margin: 0; padding: 7rem 14rem 7rem 11rem; border: 2px solid var(--ink); border-radius: 10rem;
-  background: #fff; box-shadow: 4rem 4rem 0 var(--hard); font-family: var(--f-jp); font-weight: 700; font-size: 15rem; line-height: 1; letter-spacing: .1em; white-space: nowrap;
-  color: var(--ink); -webkit-text-fill-color: currentColor; -webkit-background-clip: border-box; background-clip: border-box; filter: none; }
-.sec-head__jp::before, .phead__jp::before, .sub-h span::before { content: ""; display: block; flex: none; width: 16rem; height: 14rem; margin: 0; background: var(--pink-d); animation: none;
-  -webkit-mask: var(--px-heart) center / 100% 100% no-repeat; mask: var(--px-heart) center / 100% 100% no-repeat; }
-.sec-head__jp::after, .phead__jp::after { content: none; }
-.sec-head__jp { grid-area: jp; }
-.sec-head__en, .phead__en, .sub-h b { display: block; width: auto; margin: 0; padding: 0 .04em 0 0; border: 0; border-radius: 0; box-shadow: none; white-space: nowrap;
-  font-family: var(--f-en); font-weight: 800; line-height: .86; letter-spacing: 0;
-  background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; filter: drop-shadow(3rem 3rem 0 #fff) drop-shadow(0 10rem 18rem rgba(214,166,242,.35)); }
-.sec-head__en::before, .phead__en::before, .sub-h b::before { content: none; }
-.sec-head__en { grid-area: en; font-size: 120rem; }
-.sec-head__en::after { content: ""; display: inline-block; width: .1em; height: .7em; margin-left: .06em; background: var(--pink-d); animation: blink 1s steps(1) infinite; }
-.phead__en { font-size: 150rem; }
-.sub-h b { font-size: 60rem; }
-.sub-h span { font-size: 14rem; padding: 6rem 12rem 6rem 10rem; box-shadow: 3rem 3rem 0 var(--hard); }
-@media (max-width: 768px) {
-  .sec-head { grid-template-areas: "jp line" "en en"; }
-  .sec-head__jp, .phead__jp { font-size: 12rem; padding: 5rem 10rem 5rem 8rem; gap: 6rem; box-shadow: 3rem 3rem 0 var(--hard); }
-  .sec-head__jp::before, .phead__jp::before, .sub-h span::before { width: 12rem; height: 10rem; }
-  .sec-head__en { font-size: 64rem; }
-  .phead__en { font-size: 76rem; }
-  .sub-h b { font-size: 40rem; }
-  .sub-h span { font-size: 11rem; padding: 4rem 9rem 4rem 7rem; }
-}
-@media (prefers-reduced-motion: reduce) { .sec-head__en::after { animation: none; } }
+
 /* トップの文字：Hello, World! は左から、消すときは後ろから */
 .hero__title .fit.--hello { align-self: flex-start; }
 .hero__title .fit.is-erasing { animation: typeOut var(--ed, .4s) steps(var(--n, 12), end) both; }
